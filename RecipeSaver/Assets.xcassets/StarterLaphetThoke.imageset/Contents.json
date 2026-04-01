@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "tea-leaf-salad.jpg",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

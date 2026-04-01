@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "StarterBananaFritters.png",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}
