@@ -10,14 +10,14 @@ Burmese Kitchen helps people of Burmese heritage cook the food they grew up with
 
 - **Hard-to-find ingredients** — every recipe includes substitutions so you can cook without a trip to a specialist shop
 - **Informal measurements** — traditional Burmese cooking uses "a tin", "a handful", "grandma's cup"; a built-in converter translates these into standard units
-- **No curated library** — a hand-crafted collection of 8 authentic Burmese recipes, from Mohinga (the national dish) to Laphet Thoke (tea leaf salad)
+- **No curated library** — a hand-crafted collection of 20 authentic Burmese recipes, from Mohinga (the national dish) to Laphet Thoke (tea leaf salad)
 
 ---
 
 ## Features
 
 ### Recipe Library
-8 built-in Burmese recipes across all meal types — soups, curries, noodles, salads, snacks, and desserts. All read-only, with the option to save a personal editable copy.
+20 built-in Burmese recipes across all meal types — soups, curries, noodles, salads, snacks, and desserts. All read-only, with the option to save a personal editable copy.
 
 ### Ingredient Substitutions
 Each built-in recipe ingredient that may be hard to find abroad includes one or more diaspora-tested substitutions, shown inline on the recipe screen.
@@ -79,7 +79,7 @@ RecipeSaver/
 │   ├── Recipes/            # RecipeListView, RecipeDetailView, CreateEditRecipeView, SharedRecipePreviewView
 │   ├── Grocery/            # GroceryListView, AddGroceryItemView
 │   └── Settings/           # SettingsView, MeasurementConverterView
-└── Resources/              # StarterRecipes.json (8 Burmese recipes)
+└── Resources/              # StarterRecipes.json (20 Burmese recipes)
 ```
 
 ---
@@ -94,8 +94,20 @@ RecipeSaver/
 | Laphet Thoke (လက်ဖက်သုပ်) | Salad | Nationwide |
 | Ohn No Khao Swè (အုန်းနို့ခေါက်ဆွဲ) | Noodles | Mandalay |
 | Mont Lin Ma Yar (မုန့်လင်းမယား) | Snack | Nationwide |
-| Shwe Gyi Sanwin Makin (ရွှေကြည်ဆနွင်းမကင်) | Dessert | Nationwide |
+| Shwe Gyi Sanwin Makin (ရွှေကြည်ဆနွင်းမကင်း) | Dessert | Nationwide |
 | Spicy Chicken Fried Rice (ကြက်သားဆီထမင်း) | Dinner | Nationwide |
+| Nan Gyi Thoke (နန်းကြီးသုပ်) | Noodles | Nationwide |
+| Tohu Thoke (တိုဟူးသုပ်) | Salad | Shan State |
+| Burmese Tofu (ရှမ်းတိုဟူး) | Snack | Shan State |
+| Htamin Jin (ထမင်းချဉ်) | Salad | Shan State |
+| Vegetarian Mohinga (သက်သတ်လွတ် မုန့်ဟင်းခါး) | Soup | Nationwide |
+| Chicken Curry with Potatoes (ကြက်သားအာလူးဟင်း) | Curry | Nationwide |
+| Burmese Chicken Soup (ကြက်သားဟင်းချို) | Soup | Nationwide |
+| Moh Let Saung (မုန့်လက်ဆောင်း) | Dessert | Nationwide |
+| Banana Fritters (ငှက်ပျောကြော်) | Snack | Nationwide |
+| Fried Tofu with Tamarind Sauce (ကြော်တိုဟူးနှင့် ပိန္နဲရည်ဆော့စ်) | Snack | Shan State |
+| Samosa Salad (ဆာမိုဆာသုပ်) | Salad | Nationwide |
+| Bean Curry with Rice (ပဲဟင်း) | Curry | Nationwide |
 
 ---
 
