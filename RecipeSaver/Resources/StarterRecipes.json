@@ -616,7 +616,7 @@
     ]
   },
   {
-    "title": "Ohn No Khao Swè",
+    "title": "Ohn No Khao Swe",
     "titleMy": "အုန်းနို့ခေါက်ဆွဲ",
     "desc": "Mandalay specialty with curry noodles and coconut milk. Reflecting centuries of cultural exchange along trade routes.",
     "descMy": "",
@@ -807,7 +807,7 @@
   },
   {
     "title": "Mont Lin Ma Yar",
-    "titleMy": "မုန့်လင်းမယား",
+    "titleMy": "မုန့်လင်မယား",
     "desc": "Beloved street food snack sold by vendors with cast iron takoyaki-style pans. The name means 'husband and wife'.",
     "descMy": "",
     "category": "snack",
@@ -1055,7 +1055,7 @@
   },
   {
     "title": "Spicy Chicken Fried Rice",
-    "titleMy": "ကြက်သားဆီထမင်း",
+    "titleMy": "အစပ်ကြက်သားထမင်းကြော်",
     "desc": "Everyday home dish distinguished by bold use of fish sauce, garlic, and chilli. Made with day-old rice and whatever protein is on hand.",
     "descMy": "",
     "category": "dinner",
@@ -1476,7 +1476,7 @@
     ]
   },
   {
-    "title": "Burmese Tofu",
+    "title": "Shan Tofu",
     "titleMy": "ရှမ်းတိုဟူး",
     "desc": "Yellow chickpea tofu foundational to Shan cuisine. Used in salads, fried as a snack, and served alongside soups.",
     "descMy": "",
@@ -1487,7 +1487,7 @@
     "cookMinutes": 20,
     "baseServings": 4,
     "culturalNote": "This yellow chickpea tofu is a foundational ingredient in Shan cuisine, used daily in salads, fried as a snack, and served alongside soups and rice. Unlike soy tofu, which is pressed and firm, Shan tofu is cooked from a starch suspension — closer in spirit to polenta or congee than to anything derived from curdled milk.",
-    "coverImageName": "StarterBurmeseTofu",
+    "coverImageName": "StarterShanTofu",
     "ingredients": [
       {
         "name": "Chickpea flour",
@@ -2066,7 +2066,7 @@
     ]
   },
   {
-    "title": "Moh Let Saung",
+    "title": "Mont Let Saung",
     "titleMy": "မုန့်လက်ဆောင်း",
     "desc": "Chilled dessert drink with sago pearls, coconut milk, and jaggery syrup. Beloved street stall treat during hot season.",
     "descMy": "",
@@ -2247,7 +2247,7 @@
   },
   {
     "title": "Fried Tofu with Tamarind Sauce",
-    "titleMy": "ကြော်တိုဟူးနှင့် ပိန္နဲရည်ဆော့စ်",
+    "titleMy": "တိုဟူးကြော်နှင့် မန်ကျည်းရည်ဆော့စ်",
     "desc": "Fried tofu snacks with tamarind sauce. The contrast of crispy, golden tofu against tangy sauce expresses Shan cooking's genius.",
     "descMy": "",
     "category": "snack",
@@ -2471,7 +2471,7 @@
   },
   {
     "title": "Bean Curry with Rice",
-    "titleMy": "ပဲဟင်း",
+    "titleMy": "ပဲဟင်းနှင့် ထမင်း",
     "desc": "Simple, nourishing everyday Burmese home dish. Humble ingredients elevated by patience and proper technique.",
     "descMy": "",
     "category": "curry",

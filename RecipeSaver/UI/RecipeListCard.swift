@@ -35,7 +35,7 @@ struct RecipeListCard: View {
                 if settings.showBurmese, let titleMy = recipe.titleMyanmar {
                     Text(titleMy)
                         .font(.system(size: 13))
-                        .foregroundStyle(Color.white.opacity(0.65))
+                        .foregroundStyle(Color.white)
                         .lineSpacing(4)
                 }
 
@@ -64,9 +64,10 @@ struct RecipeListCard: View {
     }
 }
 
-// MARK: - Recipe Grid Card (1:1, no Myanmar script)
+// MARK: - Recipe Grid Card (1:1)
 struct RecipeGridCard: View {
     let recipe: Recipe
+    @EnvironmentObject var settings: SettingsStore
 
     var body: some View {
         ZStack(alignment: .bottomLeading) {
@@ -87,12 +88,18 @@ struct RecipeGridCard: View {
                 endPoint: .bottom
             )
 
-            // No Myanmar script in grid — English only
             VStack(alignment: .leading, spacing: 2) {
                 Text((recipe.category ?? "").uppercased())
                     .font(.labelXs)
                     .foregroundStyle(Color.white.opacity(0.7))
                     .tracking(1.5)
+
+                if settings.showBurmese, let titleMy = recipe.titleMyanmar {
+                    Text(titleMy)
+                        .font(.system(size: 12))
+                        .foregroundStyle(Color.white)
+                        .lineLimit(1)
+                }
 
                 Text(recipe.title ?? "")
                     .font(.headlineMd)

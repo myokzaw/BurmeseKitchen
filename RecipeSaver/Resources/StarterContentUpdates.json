@@ -1,0 +1,935 @@
+{
+  "targetVersion": 2,
+  "updates": [
+    {
+      "version": 2,
+      "deleteRecipeKeys": [
+        "cover:StarterBurmeseTofu"
+      ],
+      "upsertRecipes": [
+        {
+          "title": "Ohn No Khao Swe",
+          "titleMy": "အုန်းနို့ခေါက်ဆွဲ",
+          "desc": "Mandalay specialty with curry noodles and coconut milk. Reflecting centuries of cultural exchange along trade routes.",
+          "descMy": "",
+          "category": "noodles",
+          "region": "Mandalay",
+          "difficulty": "medium",
+          "prepMinutes": 20,
+          "cookMinutes": 30,
+          "baseServings": 4,
+          "culturalNote": "A beloved Mandalay specialty reflecting centuries of cultural exchange along the Mughal trade routes connecting India and Southeast Asia. The dish carries the warm, fragrant stamp of Indian spicing — curry powder, turmeric, chickpea flour — filtered through a distinctly Burmese sensibility: rich but not heavy, coconut-sweet but savory.",
+          "coverImageName": "StarterOhnNoKhaoSway",
+          "ingredients": [
+            {
+              "name": "Chickpea flour",
+              "quantity": 100,
+              "unit": "g",
+              "sortOrder": 0,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Onion, roughly chopped",
+              "quantity": 2,
+              "unit": "piece",
+              "sortOrder": 1,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Garlic cloves",
+              "quantity": 6,
+              "unit": "piece",
+              "sortOrder": 2,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Fresh ginger, roughly chopped",
+              "quantity": 2,
+              "unit": "tbsp",
+              "sortOrder": 3,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Oil",
+              "quantity": 4,
+              "unit": "tbsp",
+              "sortOrder": 4,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Curry powder",
+              "quantity": 2,
+              "unit": "tbsp",
+              "sortOrder": 5,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Turmeric powder",
+              "quantity": 1,
+              "unit": "tsp",
+              "sortOrder": 6,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Chilli powder",
+              "quantity": 1,
+              "unit": "tsp",
+              "sortOrder": 7,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Chicken thighs, bone-in",
+              "quantity": 600,
+              "unit": "g",
+              "sortOrder": 8,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Coconut milk",
+              "quantity": 400,
+              "unit": "ml",
+              "sortOrder": 9,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Chicken stock",
+              "quantity": 600,
+              "unit": "ml",
+              "sortOrder": 10,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Fish sauce",
+              "quantity": 2,
+              "unit": "tbsp",
+              "sortOrder": 11,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Egg noodles",
+              "quantity": 400,
+              "unit": "g",
+              "sortOrder": 12,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Boiled egg, halved",
+              "quantity": 2,
+              "unit": "piece",
+              "sortOrder": 13,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Crispy fried noodles",
+              "quantity": 50,
+              "unit": "g",
+              "sortOrder": 14,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Fried shallots",
+              "quantity": 50,
+              "unit": "g",
+              "sortOrder": 15,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Spring onion, sliced",
+              "quantity": 2,
+              "unit": "piece",
+              "sortOrder": 16,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Lime wedge",
+              "quantity": 2,
+              "unit": "piece",
+              "sortOrder": 17,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            }
+          ],
+          "steps": [
+            {
+              "body": "Toast the chickpea flour in a dry pan over medium heat, stirring constantly for 3–4 minutes until it turns pale golden and smells nutty and fragrant — like warm toasted grain. Remove immediately from heat; toasted chickpea flour thickens the broth and adds a subtle earthiness that no cornstarch substitute can replicate.",
+              "sortOrder": 0
+            },
+            {
+              "body": "Blend or pound the onions, garlic, and ginger into a rough paste. Heat the oil in a large heavy-bottomed pot and fry this paste over medium heat for 5–6 minutes, stirring constantly. Watch for the transformation: it will sizzle and steam initially, then gradually turn from pale to golden-amber.",
+              "sortOrder": 1
+            },
+            {
+              "body": "Add the curry powder, turmeric, and chilli powder directly to the hot paste and stir vigorously for 1 minute to bloom the spices in the oil. The mixture will smell intensely aromatic and turn a deep golden-orange. Add the chicken thighs and stir to coat every surface in the spiced paste.",
+              "sortOrder": 2
+            },
+            {
+              "body": "Pour in the coconut milk and chicken stock, stirring to lift any aromatics stuck to the bottom of the pot. Bring to a gentle bubble over medium heat — you want a lazy simmer, not a rolling boil. A rolling boil will cause the coconut milk to split.",
+              "sortOrder": 3
+            },
+            {
+              "body": "Reduce heat to medium-low and cover. Simmer for 20–25 minutes until the chicken is very tender. Remove the chicken pieces and shred the meat off the bones, discarding the skin. Return the shredded meat to the pot.",
+              "sortOrder": 4
+            },
+            {
+              "body": "Whisk the toasted chickpea flour with a ladle of warm broth in a small bowl until completely smooth — lumps here will remain lumps in the finished curry. Pour this slurry slowly into the simmering broth while stirring constantly. The broth will thicken visibly over the next 2 minutes.",
+              "sortOrder": 5
+            },
+            {
+              "body": "Add the fish sauce and taste carefully. The finished broth should be rich and coconutty, gently spiced, savory, and slightly sweet. Cook noodles per packet directions. Serve in deep bowls: noodles first, then broth ladled over, then toppings arranged separately.",
+              "sortOrder": 6
+            }
+          ]
+        },
+        {
+          "title": "Mont Lin Ma Yar",
+          "titleMy": "မုန့်လင်မယား",
+          "desc": "Beloved street food snack sold by vendors with cast iron takoyaki-style pans. The name means 'husband and wife'.",
+          "descMy": "",
+          "category": "snack",
+          "region": "Nationwide",
+          "difficulty": "easy",
+          "prepMinutes": 10,
+          "cookMinutes": 20,
+          "baseServings": 4,
+          "culturalNote": "A beloved street food snack sold by vendors with cast iron takoyaki-style pans filled with small round wells, often set up at dawn alongside tea stalls. The name translates to 'husband and wife' — the egg yolk nestled in the center of each ball is said to resemble a couple sitting close together. A quintessential Burmese childhood memory.",
+          "coverImageName": "StarterMontLinMaYar",
+          "ingredients": [
+            {
+              "name": "Rice flour",
+              "quantity": 150,
+              "unit": "g",
+              "sortOrder": 0,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "All-purpose flour",
+              "quantity": 100,
+              "unit": "g",
+              "sortOrder": 1,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Baking powder",
+              "quantity": 1.5,
+              "unit": "tsp",
+              "sortOrder": 2,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Salt",
+              "quantity": 0.5,
+              "unit": "tsp",
+              "sortOrder": 3,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Sugar",
+              "quantity": 2,
+              "unit": "tbsp",
+              "sortOrder": 4,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Coconut milk",
+              "quantity": 300,
+              "unit": "ml",
+              "sortOrder": 5,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Oil for cooking",
+              "quantity": 400,
+              "unit": "ml",
+              "sortOrder": 6,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Quail eggs",
+              "quantity": 12,
+              "unit": "piece",
+              "sortOrder": 7,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Spring onion, sliced",
+              "quantity": 2,
+              "unit": "piece",
+              "sortOrder": 8,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Dried shrimp, minced",
+              "quantity": 1,
+              "unit": "tbsp",
+              "sortOrder": 9,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            }
+          ],
+          "steps": [
+            {
+              "body": "Combine the rice flour, all-purpose flour, baking powder, salt, and sugar in a large bowl and whisk the dry ingredients together thoroughly. Gradually add the coconut milk while whisking, pouring in a thin stream to prevent lumps from forming. The batter should be smooth and thick — similar to cake batter — not as thin as pancake batter.",
+              "sortOrder": 0
+            },
+            {
+              "body": "Heat a takoyaki pan, aebleskiver pan, or small muffin tin over medium heat for 1–2 minutes until thoroughly hot. Brush each well generously with neutral oil, coating the bottom and sides completely. A properly oiled, properly hot pan is the secret to the crispy exterior.",
+              "sortOrder": 1
+            },
+            {
+              "body": "Fill each well halfway with batter using a small ladle or spoon. Immediately crack one quail egg into the center of each well, being careful not to break the yolk. Add a few slices of spring onion and a small pinch of dried shrimp on top of the egg.",
+              "sortOrder": 2
+            },
+            {
+              "body": "Spoon more batter over each well until nearly full, leaving just a thin sliver of space at the top. Cook on medium heat for 3–4 minutes. Watch the edges: when the batter pulls slightly away from the pan wall and turns light golden, the bottom has set and it is time to flip.",
+              "sortOrder": 3
+            },
+            {
+              "body": "Using a long skewer or takoyaki pick, insert the tip down the side of one ball and begin rotating it smoothly in a 180-degree arc. The ball should release cleanly from the pan and land with its raw batter side down. Cook the second side for 2–3 minutes until golden and set.",
+              "sortOrder": 4
+            },
+            {
+              "body": "Remove with a skewer or slotted spoon and serve immediately with sweet chilli sauce for dipping. Mont lin ma yar must be eaten hot — within 5 minutes of cooking — while the exterior is still crispy and the quail egg inside is still custardy. They lose their magic quickly as they cool.",
+              "sortOrder": 5
+            }
+          ]
+        },
+        {
+          "title": "Spicy Chicken Fried Rice",
+          "titleMy": "အစပ်ကြက်သားထမင်းကြော်",
+          "desc": "Everyday home dish distinguished by bold use of fish sauce, garlic, and chilli. Made with day-old rice and whatever protein is on hand.",
+          "descMy": "",
+          "category": "dinner",
+          "region": "Nationwide",
+          "difficulty": "easy",
+          "prepMinutes": 10,
+          "cookMinutes": 15,
+          "baseServings": 2,
+          "culturalNote": "Burmese fried rice is distinguished from its Chinese cousin by its bold, unapologetic use of fish sauce, garlic, and chilli — simpler in construction but deeply intense in flavor. It is an everyday home dish, often made to use day-old rice (which fries better than fresh) and whatever protein is on hand.",
+          "coverImageName": "StarterFriedRice",
+          "ingredients": [
+            {
+              "name": "Oil",
+              "quantity": 2,
+              "unit": "tbsp",
+              "sortOrder": 0,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Egg",
+              "quantity": 2,
+              "unit": "piece",
+              "sortOrder": 1,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Garlic clove, minced",
+              "quantity": 4,
+              "unit": "piece",
+              "sortOrder": 2,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Shallot, sliced",
+              "quantity": 2,
+              "unit": "piece",
+              "sortOrder": 3,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Chicken breast, sliced",
+              "quantity": 200,
+              "unit": "g",
+              "sortOrder": 4,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Day-old rice, cold",
+              "quantity": 300,
+              "unit": "g",
+              "sortOrder": 5,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Fish sauce",
+              "quantity": 2,
+              "unit": "tbsp",
+              "sortOrder": 6,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Soy sauce",
+              "quantity": 1,
+              "unit": "tbsp",
+              "sortOrder": 7,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Chilli powder",
+              "quantity": 1,
+              "unit": "tsp",
+              "sortOrder": 8,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Spring onion, chopped",
+              "quantity": 2,
+              "unit": "piece",
+              "sortOrder": 9,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            }
+          ],
+          "steps": [
+            {
+              "body": "Heat a wok or large skillet over high heat until it begins to smoke slightly — this high heat is non-negotiable for good fried rice. Add 1 tbsp oil, crack in the eggs, and scramble them quickly, breaking them into rough bite-sized pieces. Remove the cooked egg to a side plate immediately; it will finish cooking with residual heat.",
+              "sortOrder": 0
+            },
+            {
+              "body": "Return the wok to high heat and add the remaining 1 tbsp oil. Once the oil shimmers, add the minced garlic and sliced shallots and stir-fry for 30–45 seconds until fragrant and just beginning to turn golden. The aromatics should sizzle vigorously and perfume the oil — they should not sit and steam.",
+              "sortOrder": 1
+            },
+            {
+              "body": "Add the sliced chicken and stir-fry for 2–3 minutes, tossing constantly, until cooked through and no longer pink inside. Burmese fried rice chicken should be tender, not rubbery — high heat and constant movement keeps it moist.",
+              "sortOrder": 2
+            },
+            {
+              "body": "Add the day-old rice (cold rice is essential — freshly cooked hot rice releases steam and becomes sticky). Break up any clumps immediately with the side of a metal spatula or wok turner as you toss. Stir-fry for 2–3 minutes, tossing frequently so every grain gets coated in the fragrant oil.",
+              "sortOrder": 3
+            },
+            {
+              "body": "Pour the fish sauce and soy sauce around the edges of the wok rather than directly onto the rice — the liquid hits the hot pan first and vaporizes, infusing the rice with flavor rather than making it wet. Add the chilli powder and toss continuously for 30–45 seconds.",
+              "sortOrder": 4
+            },
+            {
+              "body": "Return the scrambled egg to the wok, add the chopped spring onions, and toss everything together for another 15–20 seconds until the onions just begin to wilt — they should still be bright green. Transfer immediately to a plate and serve hot. Fried rice waits for no one.",
+              "sortOrder": 5
+            }
+          ]
+        },
+        {
+          "title": "Shan Tofu",
+          "titleMy": "ရှမ်းတိုဟူး",
+          "desc": "Yellow chickpea tofu foundational to Shan cuisine. Used in salads, fried as a snack, and served alongside soups.",
+          "descMy": "",
+          "category": "snack",
+          "region": "Shan State",
+          "difficulty": "easy",
+          "prepMinutes": 10,
+          "cookMinutes": 20,
+          "baseServings": 4,
+          "culturalNote": "This yellow chickpea tofu is a foundational ingredient in Shan cuisine, used daily in salads, fried as a snack, and served alongside soups and rice. Unlike soy tofu, which is pressed and firm, Shan tofu is cooked from a starch suspension — closer in spirit to polenta or congee than to anything derived from curdled milk.",
+          "coverImageName": "StarterShanTofu",
+          "ingredients": [
+            {
+              "name": "Chickpea flour",
+              "quantity": 300,
+              "unit": "g",
+              "sortOrder": 0,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Turmeric powder",
+              "quantity": 1,
+              "unit": "tsp",
+              "sortOrder": 1,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Salt",
+              "quantity": 0.5,
+              "unit": "tsp",
+              "sortOrder": 2,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Water",
+              "quantity": 1200,
+              "unit": "ml",
+              "sortOrder": 3,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Oil for frying",
+              "quantity": 400,
+              "unit": "ml",
+              "sortOrder": 4,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            }
+          ],
+          "steps": [
+            {
+              "body": "In a large bowl or measuring jug, whisk together the chickpea flour, turmeric, and salt. Gradually add the water in a thin stream while whisking continuously — adding water too quickly causes the flour to clump before it can disperse. The finished mixture should be completely smooth, the color of turmeric-gold, and pourable.",
+              "sortOrder": 0
+            },
+            {
+              "body": "Pour the mixture into a heavy-bottomed pot and place over medium-low heat. Begin stirring immediately with a wooden spoon, making long sweeping strokes across the bottom and up the sides of the pot. After about 5 minutes, the mixture will begin to thicken and change color from pale yellow to a deeper, warmer gold.",
+              "sortOrder": 1
+            },
+            {
+              "body": "Continue cooking and stirring for 15–20 minutes total. The key sensory signal is when the mixture stops flowing and starts moving as a cohesive, thick mass — it should pull away cleanly from the sides as you stir and leave a brief trail on the surface.",
+              "sortOrder": 2
+            },
+            {
+              "body": "Working quickly, pour the hot tofu into a shallow 20cm square or round dish, spreading it to an even 1cm thickness with a wet spatula. The tofu begins to set the moment it leaves the heat, so speed matters. Let it cool completely at room temperature (about 30 minutes).",
+              "sortOrder": 3
+            },
+            {
+              "body": "Refrigerate for at least 2 hours, or overnight. The cold firms the tofu substantially — it will be much easier to cut and will hold its shape far better after proper chilling. Do not rush this step by putting it in the freezer, which would damage the delicate starch structure.",
+              "sortOrder": 4
+            },
+            {
+              "body": "To fry: cut into rectangular pieces about 1cm thick and 5cm long, pat them dry with paper towels, and lower them into oil heated to 175°C. Fry for 2–3 minutes per side until the exterior is light golden-brown and crispy. The contrast between the golden, slightly crunchy exterior and the custardy interior is what makes Burmese fried tofu so appealing.",
+              "sortOrder": 5
+            }
+          ]
+        },
+        {
+          "title": "Mont Let Saung",
+          "titleMy": "မုန့်လက်ဆောင်း",
+          "desc": "Chilled dessert drink with sago pearls, coconut milk, and jaggery syrup. Beloved street stall treat during hot season.",
+          "descMy": "",
+          "category": "dessert",
+          "region": "Nationwide",
+          "difficulty": "easy",
+          "prepMinutes": 20,
+          "cookMinutes": 30,
+          "baseServings": 4,
+          "culturalNote": "A chilled Burmese dessert drink made with sago pearls, coconut milk, and jaggery syrup — a beloved street stall treat consumed in enormous quantities during the hot season, when temperatures in Yangon regularly exceed 40°C. Sold from pushcarts and market stalls in large bowls over crushed ice.",
+          "coverImageName": "StarterMohLetSaung",
+          "ingredients": [
+            {
+              "name": "Water",
+              "quantity": 1000,
+              "unit": "ml",
+              "sortOrder": 0,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Sago pearl",
+              "quantity": 200,
+              "unit": "g",
+              "sortOrder": 1,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Jaggery",
+              "quantity": 150,
+              "unit": "g",
+              "sortOrder": 2,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Coconut milk, full-fat",
+              "quantity": 400,
+              "unit": "ml",
+              "sortOrder": 3,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Crushed ice",
+              "quantity": 500,
+              "unit": "g",
+              "sortOrder": 4,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            }
+          ],
+          "steps": [
+            {
+              "body": "Bring 1 litre of water to a full rolling boil in a large pot. Add the sago pearls in a thin, steady stream while stirring constantly — adding them all at once causes them to clump together in an irreversible mass. Continue stirring for the first 2 minutes to keep each pearl separate as they begin to soften.",
+              "sortOrder": 0
+            },
+            {
+              "body": "Reduce heat to medium and cook for 15–20 minutes, stirring occasionally, until the sago pearls are almost completely translucent. Hold one against the light: it should be clear around the edges with just a tiny white star-like dot visible at the center. Do not overcook — fully clear sago becomes mushy.",
+              "sortOrder": 1
+            },
+            {
+              "body": "Pour the cooked sago into a fine sieve or colander and rinse under cool running water, gently stirring the pearls with your hand to wash away the excess starch. This rinsing step is essential: without it, the pearls will stick together as they cool.",
+              "sortOrder": 2
+            },
+            {
+              "body": "Make the jaggery syrup: break the jaggery into rough pieces and combine with 250ml water in a small saucepan. Bring to a boil over medium heat, stirring until every piece dissolves. The syrup will be a warm, dark amber color that smells of caramel and toasted palm. Simmer for 2–3 minutes until slightly thickened, then cool to room temperature.",
+              "sortOrder": 3
+            },
+            {
+              "body": "In a large bowl or pitcher, gently combine the cooled sago pearls, jaggery syrup, and full-fat coconut milk. Stir with a light hand — you want everything evenly mixed without breaking the pearls. The mixture should look like pearls suspended in a caramel-tinged coconut cream.",
+              "sortOrder": 4
+            },
+            {
+              "body": "To serve: fill glasses or deep bowls halfway with the sago-coconut mixture. Pile crushed ice generously on top. Drizzle any remaining syrup over the ice for extra sweetness. Serve immediately with a spoon and encourage diners to stir the melting ice into the coconut cream, thinning and chilling the mixture as they eat.",
+              "sortOrder": 5
+            }
+          ]
+        },
+        {
+          "title": "Fried Tofu with Tamarind Sauce",
+          "titleMy": "တိုဟူးကြော်နှင့် မန်ကျည်းရည်ဆော့စ်",
+          "desc": "Fried tofu snacks with tamarind sauce. The contrast of crispy, golden tofu against tangy sauce expresses Shan cooking's genius.",
+          "descMy": "",
+          "category": "snack",
+          "region": "Shan State",
+          "difficulty": "easy",
+          "prepMinutes": 15,
+          "cookMinutes": 15,
+          "baseServings": 4,
+          "culturalNote": "Fried tofu snacks are common in Shan and Burmese street food culture, sold at market stalls and tea shops alongside other fried things. Tamarind adds a sweet-sour balance — simultaneously tangy and caramel-tinged — that works brilliantly for diaspora kitchens where distinctly Burmese ingredients may be hard to find.",
+          "coverImageName": "StarterFriedTofu",
+          "ingredients": [
+            {
+              "name": "Shan tofu or firm tofu",
+              "quantity": 400,
+              "unit": "g",
+              "sortOrder": 0,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Oil for frying",
+              "quantity": 300,
+              "unit": "ml",
+              "sortOrder": 1,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Garlic clove, minced",
+              "quantity": 2,
+              "unit": "piece",
+              "sortOrder": 2,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Tamarind paste",
+              "quantity": 2,
+              "unit": "tbsp",
+              "sortOrder": 3,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Sugar",
+              "quantity": 1.5,
+              "unit": "tbsp",
+              "sortOrder": 4,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Water",
+              "quantity": 50,
+              "unit": "ml",
+              "sortOrder": 5,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Fish sauce",
+              "quantity": 1,
+              "unit": "tsp",
+              "sortOrder": 6,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            }
+          ],
+          "steps": [
+            {
+              "body": "Cut the tofu into rectangular pieces about 1cm thick and 5cm long — this shape maximizes surface area in the oil while keeping the interior thick enough to stay custardy rather than cooking through entirely. Pat each piece firmly dry with paper towels; surface moisture is the enemy of a good crust, causing the tofu to steam rather than fry.",
+              "sortOrder": 0
+            },
+            {
+              "body": "Pour the oil into a wok or heavy-bottomed pan to a depth of at least 2cm and heat over medium-high until it reaches 170–180°C. To test without a thermometer, drop a small piece of tofu into the oil — it should sizzle energetically and rise to the surface immediately.",
+              "sortOrder": 1
+            },
+            {
+              "body": "Working in batches to avoid crowding the pan (crowding causes the oil temperature to drop, producing greasy results), carefully lower the tofu pieces into the hot oil one at a time. Do not move them for the first 1–2 minutes — this allows a golden crust to form. After 2–3 minutes total, use tongs to turn each piece gently and fry the other side for 1–2 minutes until light golden-brown all over.",
+              "sortOrder": 2
+            },
+            {
+              "body": "Remove with a slotted spoon and drain on paper towels. The exterior should be lightly crisp and golden; the interior should remain soft and custardy. Serve within 5–10 minutes of frying — tofu loses its crispness as it cools.",
+              "sortOrder": 3
+            },
+            {
+              "body": "Make the tamarind sauce while the tofu fries: heat 1 tsp oil in a small saucepan over low heat, add the minced garlic, and fry for 1 minute until fragrant and just beginning to soften — do not let it brown. Add the tamarind paste, sugar, and water, stirring to dissolve. Bring to a very gentle simmer.",
+              "sortOrder": 4
+            },
+            {
+              "body": "Simmer the sauce for 3–4 minutes, stirring occasionally, until it is slightly reduced, glossy, and pourable. It should taste intensely sour-sweet with a background of garlic. Add the fish sauce and stir to incorporate — it adds the savory umami depth that transforms the sauce from sweet-sour into something complex and rounded. Taste and adjust.",
+              "sortOrder": 5
+            },
+            {
+              "body": "Arrange the fried tofu on a plate and serve the warm tamarind sauce in a small bowl alongside for dipping. Each piece of warm, crispy tofu dipped into the tangy sauce should deliver the full flavor contrast simultaneously — hot and cool, crispy and saucy, savory and sharp.",
+              "sortOrder": 6
+            }
+          ]
+        },
+        {
+          "title": "Bean Curry with Rice",
+          "titleMy": "ပဲဟင်းနှင့် ထမင်း",
+          "desc": "Simple, nourishing everyday Burmese home dish. Humble ingredients elevated by patience and proper technique.",
+          "descMy": "",
+          "category": "curry",
+          "region": "Nationwide",
+          "difficulty": "easy",
+          "prepMinutes": 15,
+          "cookMinutes": 25,
+          "baseServings": 4,
+          "culturalNote": "A simple, nourishing everyday Burmese home dish made when meat is unavailable or when families want a lighter meal. It represents the mild, sustaining side of Burmese home cooking — humble ingredients elevated by patience and proper technique. The simplicity of this curry is intentional: it is meant to support and accompany a bowl of rice without overwhelming it.",
+          "coverImageName": "StarterBeanCurry",
+          "ingredients": [
+            {
+              "name": "Dried bean",
+              "quantity": 300,
+              "unit": "g",
+              "sortOrder": 0,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Oil",
+              "quantity": 2,
+              "unit": "tbsp",
+              "sortOrder": 1,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Onion, thinly sliced",
+              "quantity": 1,
+              "unit": "piece",
+              "sortOrder": 2,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Garlic clove, minced",
+              "quantity": 2,
+              "unit": "piece",
+              "sortOrder": 3,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Turmeric powder",
+              "quantity": 1,
+              "unit": "tsp",
+              "sortOrder": 4,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Water",
+              "quantity": 500,
+              "unit": "ml",
+              "sortOrder": 5,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            },
+            {
+              "name": "Salt",
+              "quantity": 0.5,
+              "unit": "tsp",
+              "sortOrder": 6,
+              "nameMy": "",
+              "substitutions": [
+
+              ]
+            }
+          ],
+          "steps": [
+            {
+              "body": "If using dried beans, soak them in cold water overnight (at least 8 hours). Drain, rinse, and boil in fresh unsalted water for 45 minutes to 1 hour until completely tender but not falling apart — they should hold their shape but give easily when pressed between two fingers. If using tinned beans, drain and rinse them thoroughly and proceed directly to the next step.",
+              "sortOrder": 0
+            },
+            {
+              "body": "Heat the oil in a heavy-bottomed pot over medium heat. Add the thinly sliced onion and fry, stirring every minute or so, for 4–5 minutes until soft, translucent, and just beginning to turn golden at the edges. Onions are the flavor foundation of this curry — patient cooking over medium heat develops their natural sweetness and creates a mellow, rounded base. Rushing this step produces a sharp, raw-tasting result.",
+              "sortOrder": 1
+            },
+            {
+              "body": "Add the minced garlic and stir for 1 minute until fragrant. Sprinkle the turmeric directly over the onion-garlic mixture and stir vigorously for 30 seconds to bloom it in the hot oil — this transforms the raw, slightly harsh turmeric into a warm, mellow, rounded spice. The oil will turn deep golden-yellow.",
+              "sortOrder": 2
+            },
+            {
+              "body": "Add the cooked beans and stir gently to coat them in the spiced oil, turning them over for about 1 minute. The beans will absorb the turmeric color and begin to smell aromatic. Pour in 500ml of water (or light vegetable stock for more depth) and stir to combine.",
+              "sortOrder": 3
+            },
+            {
+              "body": "Bring to a simmer over medium heat, then reduce to medium-low and cook uncovered, stirring gently every few minutes, for 15–20 minutes. The curry should reduce and thicken gradually as it cooks. Watch that the beans remain intact — they should soften slightly and absorb flavor without breaking down into a paste.",
+              "sortOrder": 4
+            },
+            {
+              "body": "Taste the finished curry and season with salt to prefermence. The curry should be mild and slightly earthy, with a gentle savory warmth from the turmeric and a soft sweetness from the onion — no single flavor element should stand out aggressively. This is a dish meant to harmonize with rice, not compete with it. Serve hot alongside steamed jasmine rice.",
+              "sortOrder": 5
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

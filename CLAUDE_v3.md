@@ -963,7 +963,7 @@ The `.recipeFeedbackEvent` notification is still posted for compatibility, but t
 ```
 RecipeSaver/
 ├── App/
-│   ├── RecipeSaverApp.swift           ← add navigateToRecipe notification
+│   ├── RecipeSaverApp.swift           ← add navigateToRecipe + debug hash reseed + versioned content updates
 │   └── SettingsStore.swift            (unchanged)
 ├── Models/
 │   ├── Enums.swift                    ← add AisleCategory
@@ -1013,9 +1013,10 @@ RecipeSaver/
 │       ├── SettingsView.swift         (unchanged)
 │       └── MeasurementConverterView.swift (unchanged)
 ├── Resources/
-│   └── StarterRecipes.json            (unchanged)
+│   ├── StarterRecipes.json            ← updated titles/translations
+│   └── StarterContentUpdates.json     ← NEW (versioned incremental upserts/deletes)
 ├── ContentView.swift                  ← inject BannerManager, add FloatingBannerView overlay
-├── Persistence.swift                  (unchanged)
+├── Persistence.swift                  ← optional bundled SQLite seed-store bootstrap
 ├── RecipeSaver.xcdatamodeld/
 │   ├── RecipeSaver.xcdatamodel        ← v1 (do not touch)
 │   ├── RecipeSaver 2.xcdatamodel      ← v2 (do not touch)
@@ -1097,6 +1098,46 @@ Build in this exact order. Each step must compile before proceeding.
 - `RecipeSaver/RecipeSaverApp.swift` — added `navigateToRecipe` notification name, `copyViewed` case to `RecipeFeedbackAction`
 - `RecipeSaver/ContentView.swift` — BannerManager injection + `FloatingBannerView` overlay
 - `RecipeSaver/Views/Recipes/CreateEditRecipeView.swift` — updated `onConfirm` closure to accept `(UIImage, CGPoint)` for focal point; BannerManager-based delete
+
+### Post-v3 content distribution updates (2026-04-08)
+
+Objective: support larger built-in recipe libraries without full destructive reseeds.
+
+1. `Persistence.swift` now supports optional prebuilt store bootstrap:
+    - On first launch, if `RecipeSaverSeed.sqlite` exists in app bundle, copy it into CoreData store location before loading persistent stores.
+    - Also copies `-wal` / `-shm` sidecars when present.
+    - If seed copy fails or file is absent, app falls back to normal empty-store creation.
+
+2. `RecipeSaverApp.swift` seeding behavior now includes debug hash-gated reseeding:
+    - Key `hasSeededRecipesV4` remains one-time gate in Release.
+    - In Debug, app computes a stable hash of bundled `StarterRecipes.json` and reseeds built-ins when hash changes.
+    - Hash key: `starterRecipesHashV4`.
+
+3. Added versioned incremental content updater:
+    - New manifest file: `RecipeSaver/Resources/StarterContentUpdates.json`.
+    - App reads manifest and applies updates in ascending `version` order.
+    - Tracks applied version in `UserDefaults` key `starterContentVersionV1`.
+    - Supports both `upsertRecipes` and `deleteRecipeKeys`.
+
+4. First real incremental payload shipped:
+    - `targetVersion = 2`.
+        - Includes upserts for corrected canonical recipe metadata from `StarterRecipes.json` (romanized name, Myanmar name, and short description text where applicable).
+    - Includes delete key for old Shan-tofu cover key (`cover:StarterBurmeseTofu`).
+        - Canonical corrections tracked in this payload include:
+            - `Ohn No Khao Swe` (was `Ohn No Khao Swè`)
+            - `Mont Lin Ma Yar` Myanmar title set to `မုန့်လင်မယား`
+            - `Spicy Chicken Fried Rice` Myanmar title set to `အစပ်ကြက်သားထမင်းကြော်`
+            - `Shan Tofu` (renamed from `Burmese Tofu`, with `coverImageName = StarterShanTofu`)
+            - `Mont Let Saung` (was `Moh Let Saung`)
+            - `Fried Tofu with Tamarind Sauce` Myanmar title set to `တိုဟူးကြော်နှင့် မန်ကျည်းရည်ဆော့စ်`
+            - `Bean Curry with Rice` Myanmar title set to `ပဲဟင်းနှင့် ထမင်း`
+
+5. Release process documentation added:
+    - `docs/StarterContentRelease.md` defines authoring rules, schema, keying strategy, and release checklist.
+
+6. Build verification:
+    - Simulator build succeeds with these changes.
+    - Resource bundle verification confirms both `StarterRecipes.json` and `StarterContentUpdates.json` are packaged in app bundle.
 
 ---
 

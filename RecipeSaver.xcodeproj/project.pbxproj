@@ -6,13 +6,6 @@
 	objectVersion = 77;
 	objects = {
 
-<<<<<<< HEAD
-/* Begin PBXBuildFile section */
-		46DC721D2F7DBCFF00CE710A /* CLAUDE.md in Resources */ = {isa = PBXBuildFile; fileRef = 46DC721C2F7DBCFF00CE710A /* CLAUDE.md */; };
-/* End PBXBuildFile section */
-
-=======
->>>>>>> f7ec488c825cf51cf28551f3a3828c57e70d300d
 /* Begin PBXContainerItemProxy section */
 		46DC72002F7DB92F00CE710A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -34,10 +27,7 @@
 		46DC71ED2F7DB92E00CE710A /* RecipeSaver.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RecipeSaver.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		46DC71FF2F7DB92F00CE710A /* RecipeSaverTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RecipeSaverTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		46DC72092F7DB92F00CE710A /* RecipeSaverUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RecipeSaverUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-<<<<<<< HEAD
 		46DC721C2F7DBCFF00CE710A /* CLAUDE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CLAUDE.md; sourceTree = "<group>"; };
-=======
->>>>>>> f7ec488c825cf51cf28551f3a3828c57e70d300d
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -90,10 +80,7 @@
 				46DC72022F7DB92F00CE710A /* RecipeSaverTests */,
 				46DC720C2F7DB92F00CE710A /* RecipeSaverUITests */,
 				46DC71EE2F7DB92E00CE710A /* Products */,
-<<<<<<< HEAD
 				46DC721C2F7DBCFF00CE710A /* CLAUDE.md */,
-=======
->>>>>>> f7ec488c825cf51cf28551f3a3828c57e70d300d
 			);
 			sourceTree = "<group>";
 		};
@@ -227,10 +214,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-<<<<<<< HEAD
-				46DC721D2F7DBCFF00CE710A /* CLAUDE.md in Resources */,
-=======
->>>>>>> f7ec488c825cf51cf28551f3a3828c57e70d300d
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -417,10 +400,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
-<<<<<<< HEAD
 				INFOPLIST_KEY_CFBundleDisplayName = "Burmese Kitchen";
-=======
->>>>>>> f7ec488c825cf51cf28551f3a3828c57e70d300d
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -465,10 +445,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
-<<<<<<< HEAD
 				INFOPLIST_KEY_CFBundleDisplayName = "Burmese Kitchen";
-=======
->>>>>>> f7ec488c825cf51cf28551f3a3828c57e70d300d
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
