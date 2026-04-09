@@ -36,13 +36,13 @@ struct CreateEditRecipeView: View {
     @State private var originalCoverImagePath: String?
     @State private var coverImageDidChange = false
     @State private var isLoadingSelectedPhoto = false
+    // v3: focal point set during crop step 2
+    @State private var pendingFocalPoint: CGPoint = CGPoint(x: 0.5, y: 0.5)
 
     @State private var showDiscardAlert = false
     @State private var showDeleteConfirmation = false
     
-    // Enhanced delete feedback states
-    @State private var deleteButtonState: DeleteButtonState = .idle
-    @State private var showDeleteToast = false
+
 
     struct IngredientFormRow: Identifiable {
         let id = UUID()
@@ -494,32 +494,6 @@ struct CreateEditRecipeView: View {
                 .padding(20)
             }
 
-            // MARK: - Delete feedback toast
-            if showDeleteToast {
-                VStack {
-                    Spacer()
-                    
-                    ToastNotification(
-                        title: "Deleted",
-                        message: "Recipe permanently removed",
-                        icon: "trash.fill",
-                        accent: Color.red
-                    )
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
-                    .padding(20)
-                }
-            }
-        }
-        .onChange(of: showDeleteToast) { oldValue, newValue in
-            if newValue {
-                // Auto-hide toast after 2.4 seconds
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2.4) {
-                    withAnimation(.easeIn(duration: 0.3)) {
-                        showDeleteToast = false
-                        deleteButtonState = .idle
-                    }
-                }
-            }
         }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -544,8 +518,9 @@ struct CreateEditRecipeView: View {
             if let raw = rawImage {
                 ImageCropView(
                     image: raw,
-                    onConfirm: { cropped in
+                    onConfirm: { cropped, focal in
                         coverImage = cropped
+                        pendingFocalPoint = focal
                         coverImageDidChange = true
                         imageRefreshToken = UUID()
                         showCropView = false
@@ -669,6 +644,12 @@ struct CreateEditRecipeView: View {
             }
         }
 
+        // v3: persist focal point whenever a custom image is set
+        if coverImageDidChange && coverImage != nil {
+            target.cropFocalX = pendingFocalPoint.x
+            target.cropFocalY = pendingFocalPoint.y
+        }
+
         for (index, row) in ingredientRows.enumerated() {
             guard !row.name.isEmpty else { continue }
             let ing       = Ingredient(context: viewContext)
@@ -724,31 +705,28 @@ struct CreateEditRecipeView: View {
     // MARK: - Delete with enhanced feedback
 
     private func deleteRecipeWithFeedback() {
-        UINotificationFeedbackGenerator().notificationOccurred(.success)
-        deleteRecipe()
-    }
-
-    private func deleteRecipe() {
         guard let recipe else { return }
-        let title = recipe.title ?? "Recipe"
-        let objectID = recipe.objectID
-        // Delete cover photo BEFORE deleting the CoreData object
-        ImageStore.delete(path: recipe.coverImagePath)
-        // Cascade rule in schema removes all child Ingredients + Steps automatically
-        viewContext.delete(recipe)
-        PersistenceController.shared.save()
-
-        NotificationCenter.default.post(
-            name: .recipeFeedbackEvent,
-            object: nil,
-            userInfo: [
-                "action": RecipeFeedbackAction.deleted.rawValue,
-                "title": title,
-                "recipeObjectID": objectID
-            ]
-        )
-
+        UINotificationFeedbackGenerator().notificationOccurred(.success)
+        let context = viewContext
+        let imagePath = recipe.coverImagePath
+        let recipeTitle = recipe.title ?? "Recipe"
         dismiss()
+
+        BannerManager.shared.show(FloatingBanner(
+            id: UUID(),
+            title: "\"\(recipeTitle)\" deleted",
+            subtitle: "Tap Undo to restore",
+            icon: "trash.fill",
+            accentColor: Color.accentTint,
+            actionLabel: "Undo",
+            duration: 3.0,
+            onAction: nil,
+            onDismiss: {
+                ImageStore.delete(path: imagePath)
+                context.delete(recipe)
+                PersistenceController.shared.save()
+            }
+        ))
     }
 }
 

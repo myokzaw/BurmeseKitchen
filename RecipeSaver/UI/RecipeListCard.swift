@@ -12,14 +12,13 @@ struct RecipeListCard: View {
     var body: some View {
         ZStack(alignment: .bottomLeading) {
 
-            // Photo layer — loaded async to avoid blocking scroll
+            // Photo layer — loaded async, crop-to-fill with focal point
             AsyncRecipeImage(
-                path: recipe.customImagePath,
                 assetName: recipe.defaultImageAssetName,
-                aspectRatio: 3 / 2,
-                placeholder: RecipeHeroView.placeholderColor(for: recipe.mealCategory)
+                path: recipe.customImagePath,
+                aspect: 2 / 3,
+                focalPoint: recipe.focalPoint
             )
-            .clipped()
 
             // Scrim
             LinearGradient(
@@ -73,12 +72,11 @@ struct RecipeGridCard: View {
         ZStack(alignment: .bottomLeading) {
 
             AsyncRecipeImage(
-                path: recipe.customImagePath,
                 assetName: recipe.defaultImageAssetName,
-                aspectRatio: 1,
-                placeholder: RecipeHeroView.placeholderColor(for: recipe.mealCategory)
+                path: recipe.customImagePath,
+                aspect: 1,
+                focalPoint: recipe.focalPoint
             )
-            .clipped()
 
             LinearGradient(
                 stops: [

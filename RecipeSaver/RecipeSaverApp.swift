@@ -149,10 +149,12 @@ private struct V2Step: Codable {
 
 extension Notification.Name {
     static let didReceiveSharedRecipe = Notification.Name("didReceiveSharedRecipe")
-    static let recipeFeedbackEvent = Notification.Name("recipeFeedbackEvent")
+    static let recipeFeedbackEvent    = Notification.Name("recipeFeedbackEvent")
+    static let navigateToRecipe       = Notification.Name("navigateToRecipe")
 }
 
 enum RecipeFeedbackAction: String {
     case copied
     case deleted
+    case copyViewed   // fired when user taps "View" on the copy banner
 }

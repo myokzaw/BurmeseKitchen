@@ -12,14 +12,13 @@ struct RecipeHeroView: View {
     var body: some View {
         ZStack(alignment: .bottomLeading) {
 
-            // Photo layer — loaded async to avoid blocking the main thread
+            // Photo layer — loaded async, crop-to-fill with focal point
             AsyncRecipeImage(
-                path: recipe.customImagePath,
                 assetName: recipe.defaultImageAssetName,
-                aspectRatio: 4 / 3,
-                placeholder: RecipeHeroView.placeholderColor(for: recipe.mealCategory)
+                path: recipe.customImagePath,
+                aspect: 3 / 4,
+                focalPoint: recipe.focalPoint
             )
-            .clipped()
 
             // Scrim layer — always dark, independent of color scheme
             LinearGradient(

@@ -43,11 +43,14 @@ struct RuleOfThirdsGrid: Shape {
 
 // MARK: - Image Crop View
 // Always presented as .fullScreenCover — it enforces .preferredColorScheme(.dark) internally.
+// v3: Two-step flow — Step 1: crop, Step 2: set focal point.
+// onConfirm delivers both the cropped UIImage and the chosen focal CGPoint.
 struct ImageCropView: View {
     let image: UIImage
-    var onConfirm: (UIImage) -> Void
+    var onConfirm: (UIImage, CGPoint) -> Void   // v3: image + focal point
     var onCancel: () -> Void
 
+    // Step 1 state
     @State private var scale: CGFloat = 1.0
     @State private var lastScale: CGFloat = 1.0
     @State private var offset: CGSize = .zero
@@ -55,124 +58,245 @@ struct ImageCropView: View {
     @State private var selectedAspect: CropAspect = .hero
     @State private var cropDisplayWidth: CGFloat = 300
 
+    // Step 2 state
+    @State private var showFocalStep = false
+    @State private var croppedImage: UIImage? = nil
+    @State private var focalPoint: CGPoint = CGPoint(x: 0.5, y: 0.5)
+
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
 
-            VStack(spacing: 0) {
-                // Top bar
-                HStack {
-                    Button("Cancel") { onCancel() }
-                        .font(.uiMd)
-                        .foregroundStyle(Color.white)
-                    Spacer()
-                    Text("Crop Photo")
-                        .font(.bodyBold)
-                        .foregroundStyle(Color.white)
-                    Spacer()
-                    Color.clear
-                        .frame(width: 54, height: 1)
-                }
-                .padding(.horizontal, 20)
-                .padding(.vertical, 16)
-
-                // Crop preview
-                GeometryReader { geo in
-                    let cropWidth  = geo.size.width - 40
-                    let cropHeight = cropWidth / selectedAspect.ratio
-
-                    ZStack {
-                        Image(uiImage: image)
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: cropWidth, height: cropHeight)
-                            .scaleEffect(scale)
-                            .offset(offset)
-                            .clipped()
-
-                        RuleOfThirdsGrid()
-                            .stroke(Color.white.opacity(0.3), lineWidth: 0.5)
-                            .frame(width: cropWidth, height: cropHeight)
-
-                        Rectangle()
-                            .stroke(Color.white, lineWidth: 1.5)
-                            .frame(width: cropWidth, height: cropHeight)
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .onAppear { cropDisplayWidth = cropWidth }
-                    .onChange(of: cropWidth) { _, newValue in cropDisplayWidth = newValue }
-                    .gesture(
-                        SimultaneousGesture(
-                            MagnificationGesture()
-                                .onChanged { value in
-                                    scale = max(1.0, min(4.0, lastScale * value))
-                                    offset = clampedOffset(for: offset, cropWidth: cropWidth, cropHeight: cropHeight, scale: scale)
-                                }
-                                .onEnded { _ in
-                                    offset = clampedOffset(for: offset, cropWidth: cropWidth, cropHeight: cropHeight, scale: scale)
-                                    lastOffset = offset
-                                    lastScale = scale
-                                },
-                            DragGesture()
-                                .onChanged { value in
-                                    let proposed = CGSize(
-                                        width:  lastOffset.width  + value.translation.width,
-                                        height: lastOffset.height + value.translation.height
-                                    )
-                                    offset = clampedOffset(for: proposed, cropWidth: cropWidth, cropHeight: cropHeight, scale: scale)
-                                }
-                                .onEnded { _ in
-                                    offset = clampedOffset(for: offset, cropWidth: cropWidth, cropHeight: cropHeight, scale: scale)
-                                    lastOffset = offset
-                                }
-                        )
-                    )
-                }
-
-                VStack(spacing: 16) {
-                    // Aspect ratio picker
-                    HStack(spacing: 12) {
-                        ForEach(CropAspect.allCases, id: \.self) { aspect in
-                            Button(aspect.label) {
-                                withAnimation(.spring(response: 0.3)) {
-                                    selectedAspect = aspect
-                                    offset = .zero
-                                    lastOffset = .zero
-                                    scale = 1.0
-                                    lastScale = 1.0
-                                }
-                            }
-                            .font(.uiSm)
-                            .padding(.horizontal, 14)
-                            .padding(.vertical, 8)
-                            .background(selectedAspect == aspect
-                                ? Color.plumMid
-                                : Color.white.opacity(0.15))
-                            .foregroundStyle(Color.white)
-                            .clipShape(Capsule())
-                        }
-                    }
-
-                    Button(action: cropAndConfirm) {
-                        Label("Done", systemImage: "checkmark")
-                            .font(.uiMd)
-                            .foregroundStyle(Color.white)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 14)
-                            .background(Color.terra)
-                            .clipShape(RoundedRectangle(cornerRadius: 14))
-                    }
-                }
-                .padding(20)
+            if showFocalStep, let cropped = croppedImage {
+                focalPointStep(croppedImage: cropped)
+                    .transition(.asymmetric(
+                        insertion: .move(edge: .trailing),
+                        removal: .move(edge: .leading)
+                    ))
+            } else {
+                cropStep
+                    .transition(.asymmetric(
+                        insertion: .move(edge: .leading),
+                        removal: .move(edge: .trailing)
+                    ))
             }
         }
         .preferredColorScheme(.dark)
+        .animation(.easeInOut(duration: 0.3), value: showFocalStep)
     }
 
-    private func cropAndConfirm() {
-        let cropped = cropImage(image, scale: scale, offset: offset, aspect: selectedAspect, displayWidth: cropDisplayWidth)
-        onConfirm(cropped)
+    // MARK: - Step 1: Crop
+
+    private var cropStep: some View {
+        VStack(spacing: 0) {
+            // Top bar
+            HStack {
+                Button("Cancel") { onCancel() }
+                    .font(.uiMd)
+                    .foregroundStyle(Color.white)
+                Spacer()
+                Text("Crop Photo")
+                    .font(.bodyBold)
+                    .foregroundStyle(Color.white)
+                Spacer()
+                Color.clear
+                    .frame(width: 54, height: 1)
+            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 16)
+
+            // Crop preview
+            GeometryReader { geo in
+                let cropWidth  = geo.size.width - 40
+                let cropHeight = cropWidth / selectedAspect.ratio
+
+                ZStack {
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: cropWidth, height: cropHeight)
+                        .scaleEffect(scale)
+                        .offset(offset)
+                        .clipped()
+
+                    RuleOfThirdsGrid()
+                        .stroke(Color.white.opacity(0.3), lineWidth: 0.5)
+                        .frame(width: cropWidth, height: cropHeight)
+
+                    Rectangle()
+                        .stroke(Color.white, lineWidth: 1.5)
+                        .frame(width: cropWidth, height: cropHeight)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .onAppear { cropDisplayWidth = cropWidth }
+                .onChange(of: cropWidth) { _, newValue in cropDisplayWidth = newValue }
+                .gesture(
+                    SimultaneousGesture(
+                        MagnificationGesture()
+                            .onChanged { value in
+                                scale = max(1.0, min(4.0, lastScale * value))
+                                offset = clampedOffset(for: offset, cropWidth: cropWidth, cropHeight: cropHeight, scale: scale)
+                            }
+                            .onEnded { _ in
+                                offset = clampedOffset(for: offset, cropWidth: cropWidth, cropHeight: cropHeight, scale: scale)
+                                lastOffset = offset
+                                lastScale = scale
+                            },
+                        DragGesture()
+                            .onChanged { value in
+                                let proposed = CGSize(
+                                    width:  lastOffset.width  + value.translation.width,
+                                    height: lastOffset.height + value.translation.height
+                                )
+                                offset = clampedOffset(for: proposed, cropWidth: cropWidth, cropHeight: cropHeight, scale: scale)
+                            }
+                            .onEnded { _ in
+                                offset = clampedOffset(for: offset, cropWidth: cropWidth, cropHeight: cropHeight, scale: scale)
+                                lastOffset = offset
+                            }
+                    )
+                )
+            }
+
+            VStack(spacing: 16) {
+                // Aspect ratio picker
+                HStack(spacing: 12) {
+                    ForEach(CropAspect.allCases, id: \.self) { aspect in
+                        Button(aspect.label) {
+                            withAnimation(.spring(response: 0.3)) {
+                                selectedAspect = aspect
+                                offset = .zero
+                                lastOffset = .zero
+                                scale = 1.0
+                                lastScale = 1.0
+                            }
+                        }
+                        .font(.uiSm)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 8)
+                        .background(selectedAspect == aspect
+                            ? Color.plumMid
+                            : Color.white.opacity(0.15))
+                        .foregroundStyle(Color.white)
+                        .clipShape(Capsule())
+                    }
+                }
+
+                // "Next →" advances to focal point step
+                Button(action: cropAndAdvance) {
+                    Label("Next", systemImage: "arrow.right")
+                        .font(.uiMd)
+                        .foregroundStyle(Color.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
+                        .background(Color.terra)
+                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                }
+            }
+            .padding(20)
+        }
     }
+
+    // MARK: - Step 2: Focal Point
+
+    @ViewBuilder
+    private func focalPointStep(croppedImage: UIImage) -> some View {
+        VStack(spacing: 0) {
+            // Top bar
+            HStack {
+                Button("← Back") {
+                    withAnimation { showFocalStep = false }
+                }
+                .font(.uiMd)
+                .foregroundStyle(Color.white)
+                Spacer()
+                Text("Set Focus Point")
+                    .font(.bodyBold)
+                    .foregroundStyle(Color.white)
+                Spacer()
+                Color.clear
+                    .frame(width: 60, height: 1)
+            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 16)
+
+            // Focal point image + reticle
+            GeometryReader { geo in
+                let w = geo.size.width
+                let h = geo.size.height
+                let reticleX = focalPoint.x * w
+                let reticleY = focalPoint.y * h
+
+                ZStack {
+                    Image(uiImage: croppedImage)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: w, height: h)
+                        .clipped()
+
+                    // Reticle — draggable circle
+                    Circle()
+                        .fill(Color.white.opacity(0.9))
+                        .frame(width: 32, height: 32)
+                        .shadow(color: .black.opacity(0.5), radius: 6, x: 0, y: 2)
+                        .overlay(Circle().stroke(Color.white, lineWidth: 2))
+                        .position(x: reticleX, y: reticleY)
+                        .gesture(
+                            DragGesture(coordinateSpace: .local)
+                                .onChanged { value in
+                                    let x = min(max(value.location.x / w, 0.05), 0.95)
+                                    let y = min(max(value.location.y / h, 0.05), 0.95)
+                                    focalPoint = CGPoint(x: x, y: y)
+                                }
+                        )
+                }
+                .contentShape(Rectangle())
+                .gesture(
+                    DragGesture(coordinateSpace: .local)
+                        .onChanged { value in
+                            let x = min(max(value.location.x / w, 0.05), 0.95)
+                            let y = min(max(value.location.y / h, 0.05), 0.95)
+                            focalPoint = CGPoint(x: x, y: y)
+                        }
+                )
+            }
+
+            VStack(spacing: 16) {
+                Text("Drag to set the focus point — cards will keep this area in view.")
+                    .font(.bodySm)
+                    .foregroundStyle(Color.white.opacity(0.7))
+                    .multilineTextAlignment(.center)
+
+                Button(action: confirmFocalPoint) {
+                    Label("Done", systemImage: "checkmark")
+                        .font(.uiMd)
+                        .foregroundStyle(Color.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
+                        .background(Color.terra)
+                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                }
+            }
+            .padding(20)
+        }
+    }
+
+    // MARK: - Actions
+
+    private func cropAndAdvance() {
+        let cropped = cropImage(image, scale: scale, offset: offset,
+                                aspect: selectedAspect, displayWidth: cropDisplayWidth)
+        croppedImage = cropped
+        focalPoint = CGPoint(x: 0.5, y: 0.5) // reset focal point for each new crop
+        withAnimation { showFocalStep = true }
+    }
+
+    private func confirmFocalPoint() {
+        guard let cropped = croppedImage else { return }
+        onConfirm(cropped, focalPoint)
+    }
+
+    // MARK: - Helpers
 
     private func cropImage(_ source: UIImage, scale: CGFloat, offset: CGSize, aspect: CropAspect, displayWidth: CGFloat) -> UIImage {
         let targetW: CGFloat = 1200

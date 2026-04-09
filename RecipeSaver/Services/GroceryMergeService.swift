@@ -33,6 +33,7 @@ struct GroceryMergeService {
                 item.sourceRecipeId = recipe.id
                 item.sourceRecipeName = recipeName
                 item.addedAt = Date()
+                item.aisleCategory = inferAisle(from: name).rawValue
             }
         }
 
@@ -66,10 +67,40 @@ struct GroceryMergeService {
                 item.sourceRecipeId = recipe.id
                 item.sourceRecipeName = recipeName
                 item.addedAt = Date()
+                item.aisleCategory = inferAisle(from: name).rawValue
             }
         }
 
         try? context.save()
+    }
+
+    // MARK: - Aisle inference (v3)
+    static func inferAisle(from name: String) -> AisleCategory {
+        let lower = name.lowercased()
+        if lower.contains(anyOf: ["tomato","onion","garlic","ginger","spinach",
+                                   "cabbage","mushroom","lemongrass","chilli",
+                                   "pepper","carrot","potato","pea","bean sprout",
+                                   "spring onion","shallot","coriander leaf","mint"]) { return .produce }
+        if lower.contains(anyOf: ["chicken","beef","pork","lamb","duck","turkey",
+                                   "mince","sausage"]) { return .meat }
+        if lower.contains(anyOf: ["fish","prawn","shrimp","catfish","crab",
+                                   "squid","mackerel","sardine","anchovy"]) { return .seafood }
+        if lower.contains(anyOf: ["milk","butter","cream","cheese","yogurt","egg"]) { return .dairy }
+        if lower.contains(anyOf: ["rice","flour","noodle","oil","sugar","salt",
+                                   "soy sauce","fish sauce","tamarind","coconut milk",
+                                   "paste","powder","spice","turmeric","cumin",
+                                   "coriander","cardamom","star anise","bay leaf",
+                                   "sesame","dried","lentil","chickpea","bean"]) { return .pantry }
+        if lower.contains(anyOf: ["water","stock","broth","tea","juice"]) { return .beverages }
+        if lower.contains(anyOf: ["bread","dough","yeast","bun"]) { return .bakery }
+        if lower.contains(anyOf: ["frozen","ice"]) { return .frozenFoods }
+        return .other
+    }
+}
+
+private extension String {
+    func contains(anyOf keywords: [String]) -> Bool {
+        keywords.contains { self.contains($0) }
     }
 }
 

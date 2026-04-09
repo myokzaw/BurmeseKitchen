@@ -4,29 +4,26 @@ import CoreData
 struct GroceryListView: View {
     @Environment(\.managedObjectContext) private var context
 
-    // Two separate @FetchRequest properties — CoreData drives sectioning, not Swift filter.
-    // This eliminates the race condition where in-memory filter runs on stale data before
-    // the CoreData save notification propagates, causing items to visually lag behind.
-    @FetchRequest(
-        sortDescriptors: [NSSortDescriptor(keyPath: \GroceryItem.addedAt, ascending: true)],
-        predicate: NSPredicate(format: "state == %@", GroceryState.needed.rawValue),
-        animation: .default
-    ) private var neededItems: FetchedResults<GroceryItem>
+    @StateObject private var viewModel = GroceryListViewModel()
 
+    // Single @FetchRequest for all items — grouping is done in the view model.
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \GroceryItem.addedAt, ascending: true)],
-        predicate: NSPredicate(format: "state == %@", GroceryState.bought.rawValue),
         animation: .default
-    ) private var boughtItems: FetchedResults<GroceryItem>
+    ) private var allItems: FetchedResults<GroceryItem>
 
     @State private var showAddItem = false
+
+    private var boughtItems: [GroceryItem] {
+        allItems.filter { $0.groceryState == .bought }
+    }
 
     var body: some View {
         NavigationStack {
             ZStack {
                 Color.appBackground.ignoresSafeArea()
 
-                if neededItems.isEmpty && boughtItems.isEmpty {
+                if allItems.isEmpty {
                     GroceryEmptyView()
                 } else {
                     ScrollView {
@@ -47,17 +44,20 @@ struct GroceryListView: View {
                             .padding(.top, 16)
                             .padding(.bottom, 24)
 
-                            // Still needed section
-                            if !neededItems.isEmpty {
-                                GrocerySectionHeader(title: "Still needed")
-                                    .padding(.horizontal, 20)
-                                ForEach(neededItems) { item in
-                                    GroceryRowView(item: item, isBought: false)
-                                        .onTapGesture { toggleItem(item) }
-                                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                            Button(role: .destructive) { deleteItem(item) }
-                                            label: { Label("Delete", systemImage: "trash") }
-                                        }
+                            // Needed items — grouped by aisle
+                            let groups = viewModel.groupedNeededItems(from: Array(allItems))
+                            if !groups.isEmpty {
+                                ForEach(groups, id: \.aisle?.rawValue) { group in
+                                    AisleSectionHeader(aisle: group.aisle)
+                                        .padding(.horizontal, 20)
+                                    ForEach(group.items) { item in
+                                        GroceryRowView(item: item, isBought: false)
+                                            .onTapGesture { toggleItem(item) }
+                                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                                Button(role: .destructive) { deleteItem(item) }
+                                                label: { Label("Delete", systemImage: "trash") }
+                                            }
+                                    }
                                 }
                             }
 
@@ -109,8 +109,6 @@ struct GroceryListView: View {
     // MARK: - Actions
 
     private func toggleItem(_ item: GroceryItem) {
-        // Mutate the managed object's state string in place — CoreData re-evaluates
-        // both @FetchRequest predicates and moves the item to the correct section instantly.
         withAnimation(.easeInOut(duration: 0.2)) {
             item.state = item.groceryState == .needed
                 ? GroceryState.bought.rawValue
@@ -134,7 +132,32 @@ struct GroceryListView: View {
     }
 }
 
-// MARK: - Section header
+// MARK: - Aisle section header
+
+struct AisleSectionHeader: View {
+    let aisle: AisleCategory?
+
+    var body: some View {
+        HStack(spacing: 6) {
+            if let aisle {
+                Image(systemName: aisle.sfSymbol)
+                    .font(.system(size: 13, weight: .medium))
+                Text(aisle.displayName.uppercased())
+            } else {
+                Image(systemName: "bag")
+                    .font(.system(size: 13, weight: .medium))
+                Text("Other".uppercased())
+            }
+        }
+        .font(.uiMd)
+        .foregroundStyle(Color.secondaryText)
+        .tracking(1.2)
+        .padding(.top, 20)
+        .padding(.bottom, 8)
+    }
+}
+
+// MARK: - Section header (generic, used for Bought)
 
 struct GrocerySectionHeader: View {
     let title: String

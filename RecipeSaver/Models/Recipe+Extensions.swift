@@ -70,4 +70,10 @@ extension Recipe {
         guard !shouldUseDefaultImage, let path = coverImagePath, !path.isEmpty else { return nil }
         return path
     }
+
+    // MARK: - v3 focal point
+    /// Focal point as CGPoint for use in image rendering. Both axes 0.0–1.0.
+    var focalPoint: CGPoint {
+        CGPoint(x: cropFocalX, y: cropFocalY)
+    }
 }

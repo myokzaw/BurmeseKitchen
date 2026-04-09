@@ -2,8 +2,8 @@
 
 > **Reading order — all three files are required:**
 > 1. `CLAUDE.md` — v1 architecture, CoreData setup, base services
-> 2. `CLAUDE_v2.md` (this file) — v2 features, Burmese recipes, new schema, implementation notes
-> 3. `DESIGN.md` — Royal Plum color system, full-bleed scrim photo pattern, dark mode rules, crop UI
+> 2. `CLAUDE_v2.md` (this file) — v2 features, full implementation notes
+> 3. `DESIGN.md` — Royal Plum color system, full-bleed scrim photo pattern, dark mode rules
 >
 > Do not write any UI code until all three files have been read.
 > `DESIGN.md` overrides any color, typography, or photo layout decision in this file or CLAUDE.md.
@@ -12,7 +12,7 @@
 
 ## App Identity
 
-**Display name:** Burmese Kitchen (set via `INFOPLIST_KEY_CFBundleDisplayName` in Build Settings)
+**Display name:** Burmese Kitchen (set via `INFOPLIST_KEY_CFBundleDisplayName` in Build Settings — must be done in Xcode UI, not by editing `project.pbxproj` directly while Xcode is open)
 **Bundle ID:** myozaw.RecipeSaver (unchanged internally)
 **Target audience:** Burmese diaspora cooking at home abroad
 
@@ -20,446 +20,541 @@
 
 ## Overview of v2
 
-RecipeSaver v2 transforms the app from a general recipe manager into a **dedicated Burmese home cooking app for the diaspora**. The core insight: Burmese people living abroad deeply want to cook food from home but face three specific problems:
+v2 transforms the app from a general recipe manager into a **dedicated Burmese home cooking app for the diaspora**. Three problems solved:
 
-1. Hard-to-find ingredients with no substitution guidance
-2. Traditional recipes use informal measurements ("a handful", "grandma's cup") — not standard cups/tbsp
-3. No curated library of authentic Burmese recipes in one place
+1. Hard-to-find ingredients → inline substitution system
+2. Informal measurements ("a tin", "a handful") → built-in converter
+3. No curated Burmese recipe library → 20 hand-crafted starter recipes
 
-v2 solves all three with 4 focused features built on top of the v1 foundation.
-
-**v2 also ships two design upgrades — see `DESIGN.md` for full specifications:**
-- **Royal Plum color system** — replaces the v1 yellow-cream Iris Garden palette with deep iris purple, warm terracotta, and ivory surfaces, all with full dark mode adaptive tokens
-- **Full-bleed scrim photo integration** — food photography fills cards edge-to-edge with a cinematic dark gradient anchoring text; includes in-app photo crop with rule-of-thirds grid
+**Design overhaul:**
+- Royal Plum color system (deep iris purple, terracotta, ivory, full dark mode)
+- Full-bleed scrim photo cards (4:3 hero, 3:2 list, 1:1 grid)
+- In-app photo crop with rule-of-thirds grid
 
 ---
 
 ## v2 Feature Set
 
-### Feature 1 — Burmese Recipe Library (built-in content expansion)
-### Feature 2 — Ingredient Substitution System
-### Feature 3 — Informal Measurement Converter
-### Feature 4 — Bilingual Toggle (English / Myanmar script)
-### Feature 5 — Royal Plum Design System + Full-Bleed Photo Integration (see `DESIGN.md`)
-### Feature 6 — In-App Photo Crop (see `DESIGN.md` § 5 for full implementation)
-### Feature 7 — Spices & Seasonings (organized by category, scales with serving size)
-### Feature 8 — Recipe Management (Copy, Edit, Delete with confirmation dialogs)
+1. 20-recipe Burmese starter library with seeding
+2. Ingredient substitution system (inline, expandable)
+3. Informal Burmese measurement converter
+4. English / Myanmar bilingual toggle
+5. Royal Plum design system + full-bleed scrim photos
+6. In-app photo crop (ImageCropView)
+7. Spices & Seasonings section (grouped by category, scales with servings)
+8. Recipe management (Copy built-in / Edit user recipe / Delete with confirmation)
 
 ---
 
-## Feature 1: Burmese Recipe Library
+## CoreData Schema (v2 — `RecipeSaver 2.xcdatamodel`)
 
-### What it is
-Replace the v1 generic starter recipes with a curated library of authentic Burmese home recipes. These are read-only built-in recipes (same `isBuiltIn = true` flag as v1) covering all three meal types: everyday, street food/snacks, and celebratory dishes.
-
-### New CoreData attribute
-Add one attribute to the existing `Recipe` entity:
-
+### Recipe
 ```
-region: String    // e.g. "Yangon", "Shan State", "Mandalay", "Nationwide"
-```
-
-Add to `Recipe+Extensions.swift`:
-```swift
-var recipeRegion: String {
-    region ?? "Nationwide"
-}
-```
-
-### New category values
-Extend `MealCategory` enum with Burmese-specific categories:
-
-```swift
-enum MealCategory: String, CaseIterable {
-    // v1 categories kept:
-    case breakfast = "breakfast"
-    case lunch = "lunch"
-    case dinner = "dinner"
-    case snack = "snack"
-    case dessert = "dessert"
-    // v2 Burmese-specific:
-    case noodles = "noodles"         // Shan noodles, mohinga, etc.
-    case curry = "curry"             // Fish curry, chicken curry
-    case salad = "salad"             // Laphet thoke, thoke dishes
-    case soup = "soup"               // Mohinga, hin dishes
-    case ceremonial = "ceremonial"   // Festival and celebration dishes
-}
+id:               UUID        (required)
+title:            String?
+titleMy:          String?     (Myanmar script title)
+desc:             String?
+descMy:           String?     (Myanmar script description)
+category:         String?     (breakfast|lunch|dinner|snack|dessert|noodles|curry|salad|soup|ceremonial)
+region:           String?     (e.g. "Shan State", "Mandalay", "Nationwide")
+difficulty:       String?     (easy|medium|hard)
+prepMinutes:      Integer16   (default: 0)
+cookMinutes:      Integer16   (default: 0)
+baseServings:     Integer16   (default: 1)
+coverImagePath:   String?     (relative path: "covers/UUID.jpg" — custom user photos)
+coverImageName:   String?     (asset catalog name — built-in recipe images, e.g. "StarterMohinga")
+isCustomCoverImage: Boolean   (true = user-uploaded, false = default asset)
+culturalNote:     String?     (English cultural context shown in banner)
+isBuiltIn:        Boolean     (true = read-only starter recipe)
+createdAt:        Date?
 ```
 
-### Starter recipe library — full content
-
-Seed all of the following into CoreData on first launch via `StarterRecipes.json`. All have `isBuiltIn: true`.
-
----
-
-#### 1. Mohinga (မုန့်ဟင်းခါး) — National dish
-**Category:** soup | **Region:** Nationwide | **Difficulty:** hard | **Prep:** 30 min | **Cook:** 60 min | **Servings:** 4
-
-**Cultural note:** Burma's national dish and the ultimate comfort food. Traditionally eaten for breakfast but available on every street corner at any hour. Every family has their own variation passed down from mother to daughter.
-
-**Ingredients:**
-- 400g catfish fillets (or substitute: tinned mackerel, sardines, or any white fish)
-- 2 stalks lemongrass, bruised
-- 1 tsp turmeric powder
-- 1 large onion, roughly chopped
-- 4 garlic cloves
-- 1 tsp fresh ginger
-- 2 dried red chillies, soaked in hot water
-- 1 tsp shrimp paste
-- 1 tsp paprika
-- 6 tbsp oil
-- 1.5 litres water
-- 75g rice flour, toasted in dry pan until golden
-- 3 tbsp fish sauce
-- 1 tsp black pepper
-- 500g rice vermicelli noodles
-
-**Toppings (serve separately):**
-- 4 hard-boiled eggs, halved
-- Crispy fried shallots
-- Chilli flakes
-- Fresh coriander
-- Lime wedges
-- Fish sauce (extra)
-
-**Steps:**
-1. Simmer fish with lemongrass, turmeric, and 500ml water for 15 minutes. Remove fish, reserve broth. Flake fish discarding bones and skin.
-2. Blend onion, garlic, ginger, soaked chillies, and shrimp paste to a smooth paste.
-3. Heat oil in a large pot. Fry paste for 5 minutes until fragrant and darkened. Add paprika and turmeric.
-4. Add flaked fish to the paste and mash gently together. Cook 2 minutes.
-5. Pour in reserved fish broth plus remaining water. Bring to a simmer.
-6. Mix toasted rice flour with a ladle of broth until smooth. Stir into the pot to thicken.
-7. Add fish sauce and black pepper. Simmer 10 minutes. Taste and adjust seasoning — broth should be salty since noodles have no salt.
-8. Cook noodles per packet and drain. Serve noodles in bowls, ladle soup over, add toppings to taste.
-
-**Substitutions:**
-- Catfish → tinned mackerel or sardines (authentic diaspora swap used for decades)
-- Banana stem → add 12 small peeled shallots to the broth instead
-- Shrimp paste → 1 tsp miso paste or omit entirely
-- Toasted rice flour → toasted chickpea flour (besan/gram flour)
-
----
-
-#### 2. Shan Noodles (ရှမ်းခေါက်ဆွဲ)
-**Category:** noodles | **Region:** Shan State | **Difficulty:** medium | **Prep:** 20 min | **Cook:** 20 min | **Servings:** 4
-
-**Cultural note:** Originally from the Shan people of Eastern Burma, this noodle dish is now loved across the whole country. The magic is in the layered toppings — garlic oil, chilli oil, and pickled vegetables added separately at the table.
-
----
-
-#### 3. Burmese Fish Curry (ငါးဟင်း)
-**Category:** curry | **Region:** Nationwide | **Difficulty:** easy | **Prep:** 15 min | **Cook:** 25 min | **Servings:** 2
-
-**Cultural note:** Fish is central to Burmese cooking. This simple tomato-based curry is made in homes across the country. The turmeric marinade is what makes it distinctly Burmese — never skip it.
-
----
-
-#### 4. Laphet Thoke — Tea Leaf Salad (လက်ဖက်သုပ်)
-**Category:** salad | **Region:** Nationwide | **Difficulty:** medium | **Prep:** 30 min | **Cook:** 0 min | **Servings:** 4
-
-**Cultural note:** Historically a peace offering between warring kingdoms. Today it is served at the end of every Burmese meal and at all social gatherings. It is arguably the most culturally significant dish in Myanmar.
-
----
-
-#### 5. Ohn No Khao Swè — Coconut Chicken Noodle Soup (အုန်းနို့ခေါက်ဆွဲ)
-**Category:** noodles | **Region:** Mandalay | **Difficulty:** medium | **Prep:** 20 min | **Cook:** 30 min | **Servings:** 4
-
-**Cultural note:** A beloved Mandalay dish — creamy coconut milk broth with egg noodles, deeply influenced by Indian cuisine via the Mughal trade routes. Often served at special occasions and weddings.
-
----
-
-#### 6. Mont Lin Ma Yar — Burmese Pancake Bites (မုန့်လင်းမယား)
-**Category:** snack | **Region:** Nationwide | **Difficulty:** easy | **Prep:** 10 min | **Cook:** 20 min | **Servings:** 4
-
-**Cultural note:** A beloved street food snack sold by vendors with cast iron pans filled with small round wells. The name means "husband and wife" — the quail egg sits like a couple in the batter. A quintessential Burmese childhood memory.
-
----
-
-#### 7. Shwe Gyi Sanwin Makin — Semolina Cake (ရွှေကြည်ဆနွင်းမကင်)
-**Category:** dessert | **Region:** Nationwide | **Difficulty:** easy | **Prep:** 10 min | **Cook:** 35 min | **Servings:** 8
-
-**Cultural note:** A golden, fragrant semolina cake made for celebrations, merit-making ceremonies, and Thingyan (Water Festival). The topping of poppy seeds and sesame is the signature touch.
-
----
-
-#### 8. Spicy Chicken Fried Rice (ကြက်သားဆီထမင်း)
-**Category:** dinner | **Region:** Nationwide | **Difficulty:** easy | **Prep:** 10 min | **Cook:** 15 min | **Servings:** 2
-
-**Cultural note:** Burmese fried rice is distinguished by its bold use of garlic, fish sauce, and chilli — simpler than Chinese versions but deeply satisfying as an everyday home meal.
-
----
-
-### Seeding implementation (implemented)
-
-Seeding uses a versioned UserDefaults key `"hasSeededRecipesV4"` so the library can be expanded and reseeded for existing installs. On each seed run, old built-in recipes are deleted first so fresh content replaces them.
-
-**JSON Codable structs** (defined in `RecipeSaverApp.swift`):
-- `V2StarterRecipe` — full recipe with bilingual fields
-- `V2Ingredient` — with `nameMy` and nested `substitutions` array
-- `V2Substitution` — note, context, sortOrder
-- `V2Step` — body, sortOrder
-
-**New Recipe CoreData attributes** (seeded from JSON):
-- `coverImageName: String?` — asset catalog name (e.g. `"StarterMohinga"`) for built-in images
-- `isCustomCoverImage: Bool` — false for built-in asset images, true for user-picked photos
-
----
-
-## Feature 2: Ingredient Substitution System
-
-### What it is
-Each ingredient in a built-in Burmese recipe can have one or more substitutions — alternative ingredients that work when the original is unavailable abroad. Substitutions are displayed inline on the recipe detail screen.
-
-### CoreData changes
-
-New entity: **`IngredientSubstitution`**
-
-```
-id:           UUID
-note:         String     // The substitution e.g. "tinned mackerel or sardines"
-context:      String     // When to use it e.g. "If catfish is unavailable abroad"
-sortOrder:    Integer16
-```
-
-Relationship to `Ingredient`:
-```
-Ingredient → substitutions (IngredientSubstitution)   One-to-many, Cascade
-IngredientSubstitution → ingredient (Ingredient)      Many-to-one inverse, Nullify
-```
-
-Extensions in `Ingredient+Extensions.swift`:
-```swift
-var sortedSubstitutions: [IngredientSubstitution] {
-    (substitutions as? Set<IngredientSubstitution> ?? [])
-        .sorted { $0.sortOrder < $1.sortOrder }
-}
-
-var hasSubstitutions: Bool {
-    !sortedSubstitutions.isEmpty
-}
-```
-
-### UI behaviour
-- On `RecipeDetailView`, ingredients with substitutions show a small swap icon (􀄸) next to the ingredient name
-- Tapping the icon expands an inline panel showing substitution text
-- Only built-in recipes have pre-populated substitutions
-- User-created recipes can also have substitutions added manually in `CreateEditRecipeView`
-- Substitution panel style: terracotta left border, `terraPale` background
-
----
-
-## Feature 3: Informal Measurement Converter
-
-### What it is
-Burmese home cooks traditionally measure by feel — "a handful", "one tin of coconut milk", "grandma's cup". This feature lets users convert informal Burmese measurements into standard units so they can follow recipes accurately abroad.
-
-### How it works
-A dedicated sheet accessible from the `RecipeDetailView` toolbar (converter icon).
-
-### Conversion reference table
-Hardcoded in `Services/MeasurementConverter.swift`. No CoreData needed. Includes tin, coffee cup, rice bowl, handful (greens), handful (rice), Burmese tablespoon, viss, pyi, pinch, and coconut milk tin.
-
-### UI
-- `MeasurementConverterView` presented as a `.sheet` from recipe detail
-- Simple list of all informal measurements with their equivalents
-- Search bar to find a specific measurement quickly
-- Each row shows: informal name → standard equivalent + contextual note
-- Optional Myanmar script label shown next to the informal name when bilingual toggle is on
-
----
-
-## Feature 4: Bilingual Toggle (English / Myanmar script)
-
-### What it is
-A toggle in Settings that shows Myanmar script translations alongside English for recipe titles, descriptions, and ingredient names on built-in recipes.
-
-### CoreData changes
-
-New attributes on `Recipe`:
-```
-titleMy: String?        // Myanmar script title
-descMy: String?         // Myanmar script description
-culturalNote: String?   // English cultural context (shown in banner on detail screen)
-```
-
-New attribute on `Ingredient`:
-```
-nameMy: String?         // Myanmar script ingredient name
-```
-
-### App-level state
-
-`SettingsStore` is implemented in `App/SettingsStore.swift`:
-```swift
-class SettingsStore: ObservableObject {
-    @Published var showBurmese: Bool {
-        didSet { UserDefaults.standard.set(showBurmese, forKey: "showBurmese") }
-    }
-    init() {
-        showBurmese = UserDefaults.standard.bool(forKey: "showBurmese")
-    }
-    static let shared = SettingsStore()
-}
-```
-
-Injected at app root via `.environmentObject(settings)`.
-
-### UI behaviour
-- Toggle lives in a new **Settings tab** (third tab in the tab bar)
-- When enabled, built-in recipe titles show both scripts stacked
-- Myanmar text uses `.system(size: 17)` with `lineSpacing(4)` and `Color.secondaryText` — never custom fonts
-- Ingredient names show Myanmar script in a smaller muted label below the English name
-- If `titleMy` is nil (user-created recipes), toggle has no effect
-- Never show Myanmar script in grid view cards — only on list cards and detail screen
-
-### Myanmar script data for built-in recipes
-
-| Recipe | Title (Myanmar) |
-|---|---|
-| Mohinga | မုန့်ဟင်းခါး |
-| Shan Noodles | ရှမ်းခေါက်ဆွဲ |
-| Burmese Fish Curry | ငါးဟင်း |
-| Laphet Thoke | လက်ဖက်သုပ် |
-| Ohn No Khao Swè | အုန်းနို့ခေါက်ဆွဲ |
-| Mont Lin Ma Yar | မုန့်လင်းမယား |
-| Shwe Gyi Sanwin Makin | ရွှေကြည်ဆနွင်းမကင်း |
-| Spicy Chicken Fried Rice | ကြက်သားဆီထမင်း |
-
----
-
-## Feature 7: Spices & Seasonings
-
-### What it is
-A dedicated spices section on every recipe, organized by category (Dried Spices, Fresh Herbs, Spice Blends, Heat Elements, Aromatics). Spice quantities scale with serving size adjustments, and spices are automatically added to the grocery list.
-
-### CoreData entity: `Spice`
+**Relationships:**
+- `ingredients` → Ingredient, one-to-many, cascade delete
+- `steps` → RecipeStep, one-to-many, cascade delete
+- `spices` → Spice, one-to-many, cascade delete
+
+### Ingredient
 ```
 id:        UUID
-name:      String        // e.g. "Turmeric powder"
-quantity:  Double        // base quantity at baseServings
-unit:      String        // uses IngredientUnit enum
-category:  String        // driedSpices | freshHerbs | spiceBlends | heatElements | aromatics
+name:      String?
+nameMy:    String?     (Myanmar script ingredient name)
+quantity:  Double      (base quantity at recipe.baseServings)
+unit:      String?
 sortOrder: Integer16
 ```
 
-Relationship to `Recipe`:
+**Relationships:**
+- `recipe` → Recipe, many-to-one inverse, nullify
+- `substitutions` → IngredientSubstitution, one-to-many, cascade delete
+
+### IngredientSubstitution (new in v2)
 ```
-spices: Set<Spice>   // One-to-many, cascade delete
+id:        UUID
+note:      String?     (substitute ingredient, e.g. "Tinned mackerel or sardines")
+context:   String?     (when to use, e.g. "If catfish is unavailable abroad")
+sortOrder: Integer16
 ```
 
-### `SpiceCategory` enum (in `Enums.swift`)
+**Relationships:** `ingredient` → Ingredient, many-to-one inverse, nullify
+
+### Spice (new in v2)
+```
+id:        UUID
+name:      String?
+quantity:  Double      (base quantity at recipe.baseServings)
+unit:      String?     (uses IngredientUnit rawValues)
+category:  String?     (driedSpices|freshHerbs|spiceBlends|heatElements|aromatics)
+sortOrder: Integer16
+```
+
+**Relationships:** `recipe` → Recipe, many-to-one inverse, nullify
+
+### RecipeStep (unchanged)
+```
+id:        UUID
+body:      String?
+sortOrder: Integer16
+```
+
+### GroceryItem (2-state in v2)
+```
+id:             UUID
+name:           String?
+quantity:       Double?
+unit:           String?
+state:          String?     (needed|bought) ← haveAtHome REMOVED in v2
+sourceRecipeId: UUID?       (soft link, no CoreData relationship)
+sourceRecipeName: String?   (recipe title, for display reference)
+addedAt:        Date?
+```
+
+---
+
+## Intentional Deviations from CLAUDE.md
+
+- **GroceryState has 2 states only** (`needed` / `bought`). `haveAtHome` was removed. Toggle cycles `needed → bought → needed`. "Clear checked" removes `bought` items only. Ignore any 3-state references in CLAUDE.md.
+- **GroceryItem has `sourceRecipeName`** — not in CLAUDE.md schema but present in the xcdatamodeld.
+
+---
+
+## Enums (`Models/Enums.swift`)
+
 ```swift
+enum MealCategory: String, CaseIterable {
+    case breakfast, lunch, dinner, snack, dessert  // v1
+    case noodles, curry, salad, soup, ceremonial   // v2
+}
+
+enum Difficulty: String, CaseIterable {
+    case easy, medium, hard
+}
+
+enum IngredientUnit: String, CaseIterable {
+    case cup, tbsp, tsp
+    case grams = "g", oz, ml
+    case piece, pinch, none
+}
+
+enum GroceryState: String, CaseIterable {
+    case needed, bought  // 2 states only
+}
+
 enum SpiceCategory: String, CaseIterable {
-    case driedSpices   = "driedSpices"
-    case freshHerbs    = "freshHerbs"
-    case spiceBlends   = "spiceBlends"
-    case heatElements  = "heatElements"
-    case aromatics     = "aromatics"
+    case driedSpices, freshHerbs, spiceBlends, heatElements, aromatics
+    var displayName: String { ... }  // "Dried Spices", "Fresh Herbs", etc.
 }
 ```
 
-### Extensions
-`Recipe+Extensions.swift` exposes `sortedSpices` and `spicesByCategory`.
-`Spice+Extensions.swift` exposes `spiceCategory` computed property.
-
 ---
 
-## Feature 8: Recipe Management (Copy, Edit, Delete)
+## CoreData Extensions
 
-### Built-in recipes (isBuiltIn = true)
-- Toolbar shows **"Save a Copy"** button
-- Tapping copies the entire recipe (UUID(), `isBuiltIn = false`), all ingredients, steps, spices
-- Feedback banner appears: green icon, "Saved to My Recipes"
-
-### User-created recipes (isBuiltIn = false)
-- Toolbar shows **"Edit"** pencil icon → opens `CreateEditRecipeView` in edit mode
-- Bottom of `CreateEditRecipeView` has **Delete** button (red styling)
-- Confirmation dialog: `confirmationDialog` with `.destructive` role
-- On deletion: cover photo deleted from disk, CoreData objects cascade-deleted, view dismisses
-- Feedback banner appears: red icon, "Recipe Deleted"
-
-### Feedback banners
-`RecipeFeedbackBanner` component on `RecipeListView`. Posted via `NotificationCenter` using `.recipeFeedbackEvent` with `RecipeFeedbackAction` enum (`.copied` / `.deleted`).
-
----
-
-## Design System: Royal Plum (implemented)
-
-All color tokens live in `UI/Color+Extensions.swift`. Never hardcode hex values in views.
-
-### Core palette
-| Token | Light | Dark | Usage |
-|---|---|---|---|
-| `plumDeep` | `#4f055d` | — | CTAs, nav active, hero header |
-| `terra` | `#c8794a` | — | Substitution panels, region badges |
-| `ivory` | `#fdf8f0` | — | Page background (light) |
-| `darkBase` | — | `#0e0612` | Page background (dark) |
-| `ink` | `#1e0d22` | — | Primary text (light) |
-
-### Adaptive tokens (use these in all views)
-- `Color.appBackground` — page background
-- `Color.cardFill` — card fills
-- `Color.inputFill` — input backgrounds
-- `Color.primaryText` / `.secondaryText` / `.tertiaryText`
-- `Color.accentTint` — adaptive plum
-- `Color.divider` — borders
-- `Color.boughtFill` — grocery "bought" state
-
-### Type scale (`UI/Font+Extensions.swift`)
-All tokens use `Font.custom(_:size:relativeTo:)` to prevent SwiftUI font descriptor warnings.
-
-| Token | Font | Size |
-|---|---|---|
-| `displayLg` | Newsreader-Italic | 36 |
-| `displayMd` | Newsreader-Italic | 28 |
-| `headlineLg` | Newsreader-SemiBold | 22 |
-| `headlineMd` | Newsreader-Italic | 18 |
-| `serif` | Newsreader-Regular | 16 |
-| `labelXs` | Manrope-Bold | 9 |
-| `labelSm` | Manrope-SemiBold | 11 |
-| `body` | Manrope-Regular | 14 |
-| `bodySm` | Manrope-Regular | 12 |
-| `bodyBold` | Manrope-SemiBold | 14 |
-| `uiMd` | Manrope-SemiBold | 13 |
-| `uiSm` | Manrope-Medium | 11 |
-
----
-
-## Image System (implemented)
-
-### Asset catalog images (built-in recipes)
-All built-in recipe cover images live in `Assets.xcassets` with the naming pattern `Starter<RecipeName>.imageset`. There are currently 8 Burmese recipe imagesets (previously 21 total including the old v1 starter recipes).
-
-`Recipe` entity has two new image fields:
-- `coverImageName: String?` — asset catalog name, set for built-in recipes
-- `isCustomCoverImage: Bool` — true only when user picks their own photo
-
-### `AsyncRecipeImage` (implemented)
-Loads images off the main thread via `Task.detached`. Prefers asset catalog (`UIImage(named: assetName)`) over file system. The `assetName` must match the `.imageset` folder name exactly — no prefix is added in code.
-
+### Recipe+Extensions.swift
 ```swift
-// Correct: assetName = "StarterMohinga"  →  UIImage(named: "StarterMohinga")
-// Bug that was fixed: old code did UIImage(named: "Starter\(assetName)") which created double prefix
+var sortedIngredients: [Ingredient]
+var sortedSteps: [RecipeStep]
+var sortedSpices: [Spice]
+var spicesByCategory: [SpiceCategory: [Spice]]
+var mealCategory: MealCategory       // rawValue parse, defaults .dinner
+var difficultyLevel: Difficulty      // rawValue parse, defaults .easy
+var recipeRegion: String             // region ?? "Nationwide"
+var titleMyanmar: String?            // titleMy if not empty
+var descMyanmar: String?             // descMy if not empty
+var culturalContext: String?         // culturalNote if not empty
+var shouldUseDefaultImage: Bool      // true if built-in and coverImageName set
+var defaultImageAssetName: String?   // coverImageName if shouldUseDefaultImage
+var customImagePath: String?         // coverImagePath if custom
 ```
 
-### `ImageStore` (implemented)
-Saves/loads/deletes custom user cover photos in `Documents/covers/` as JPEG files.
+### Ingredient+Extensions.swift
+```swift
+var sortedSubstitutions: [IngredientSubstitution]
+var hasSubstitutions: Bool
+var nameMyanmar: String?             // nameMy if not empty
+```
+
+### Spice+Extensions.swift
+```swift
+var spiceCategory: SpiceCategory     // rawValue parse, defaults .driedSpices
+var displayName: String              // name ?? "Unknown Spice"
+var displayQuantity: String          // "X unit" or "to taste" if 0
+```
+
+### GroceryItem+Extensions.swift
+```swift
+var groceryState: GroceryState       // rawValue parse, defaults .needed
+var ingredientUnit: IngredientUnit   // rawValue parse, defaults .none
+```
+
+### IngredientSubstitution+Extensions.swift
+```swift
+var noteText: String                 // note ?? ""
+var contextText: String              // context ?? ""
+```
 
 ---
 
-## Grocery List: 2-State Model (intentional deviation from CLAUDE.md)
+## Services
 
-**GroceryState has 2 states only** (not 3 as in CLAUDE.md §3.4 and §5):
-- `needed` — still need to buy (default)
-- `bought` — purchased
+### ScalingService (`Services/ScalingService.swift`)
+Pure function. No state.
 
-The `haveAtHome` case was removed by user request. Toggle cycles `needed → bought → needed`. "Clear checked" removes only `bought` items.
+```swift
+static func scale(quantity: Double, from base: Int, to target: Int) -> Double
+```
 
-**`GroceryItem` also has a `sourceRecipeName` field** — not in the CLAUDE.md schema but present in the `.xcdatamodeld`.
+Rounds to nice fractions: 0.25, 0.33, 0.5, 0.67, 0.75. Snaps whole numbers.
+
+### SharingService (`Services/SharingService.swift`)
+`SharedRecipePayload` Codable struct — no images, no cover photo.
+- `encode(recipe:) -> URL?` — JSON → base64 → `recipesaver://share?data=BASE64`
+- `decode(url:) -> SharedRecipePayload?` — reverse
+
+### GroceryMergeService (`Services/GroceryMergeService.swift`)
+`addRecipeToList(recipe:servings:context:)`
+- Scales each ingredient via ScalingService
+- Merges with existing item only if **same name + same unit + same sourceRecipeId** (prevents cross-recipe merges)
+- Loops through `recipe.sortedSpices` after ingredients — prefixes name with `"🌶️ \(spice.name) (\(category))"`, same merge logic
+- Sets `sourceRecipeName` to `recipe.title`
+
+### ImageStore (`Services/ImageStore.swift`)
+- **Save:** `save(image:id:) -> String?` — JPEG 0.8 quality, returns **relative path** `"covers/UUID.jpg"` (stable across iOS container UUID changes)
+- **Load:** `load(path:) -> UIImage?` — handles relative paths, legacy absolute paths, and `"asset:"` prefixes
+- **Delete:** `delete(path:)` — skips `"asset:"` prefixed entries
+
+### MeasurementConverter (`Services/MeasurementConverter.swift`)
+Hardcoded `[BurmeseMeasurement]` array — 10 entries. No CoreData.
+
+| Informal | Myanmar | Standard |
+|---|---|---|
+| 1 tin (condensed milk) | တစ်ဗူး | 397g |
+| 1 coffee cup | တစ်ခွက် | 150ml |
+| 1 rice bowl | တစ်ဇွန်း | 250ml |
+| 1 handful (greens) | တစ်ဆုပ် | 30g |
+| 1 handful (rice) | တစ်ဆုပ် | 60g |
+| 1 tablespoon (Burmese) | တစ်ဇွန်း | 15ml |
+| 1 viss | တစ်ဝိစ် | 1632g |
+| 1 pyi | တစ်ပြည် | 1040g |
+| Pinch | တစ်နယ် | 0.5 tsp |
+| 1 coconut milk tin | — | 400ml |
 
 ---
 
-## Notification Names (in `RecipeSaverApp.swift`)
+## PersistenceController (`Persistence.swift`)
+
+Lightweight migration enabled. On init, calls `migrateHaveAtHomeItems()` — converts legacy `"haveAtHome"` state items to `"needed"` (safe no-op if none exist).
+
+---
+
+## Seeding (`RecipeSaverApp.swift`)
+
+Key: `"hasSeededRecipesV4"` — allows future recipe library expansion by bumping the version number.
+
+On first launch:
+1. Deletes all existing `isBuiltIn == true` recipes
+2. Loads `StarterRecipes.json`
+3. Decodes into `[V2StarterRecipe]` using private Codable structs (V2StarterRecipe, V2Ingredient, V2Substitution, V2Step)
+4. Creates CoreData objects for each recipe + ingredients + substitutions + steps
+5. Sets `coverImageName` from JSON (asset catalog name, no prefix added — must match `.imageset` folder exactly)
+
+**20 built-in recipes** in `Resources/StarterRecipes.json`:
+
+| Title | Myanmar | Category | Region |
+|---|---|---|---|
+| Mohinga | မုန့်ဟင်းခါး | soup | Nationwide |
+| Shan Noodles | ရှမ်းခေါက်ဆွဲ | noodles | Shan State |
+| Burmese Fish Curry | ငါးဟင်း | curry | Nationwide |
+| Laphet Thoke | လက်ဖက်သုပ် | salad | Nationwide |
+| Ohn No Khao Swè | အုန်းနို့ခေါက်ဆွဲ | noodles | Mandalay |
+| Mont Lin Ma Yar | မုန့်လင်းမယား | snack | Nationwide |
+| Shwe Gyi Sanwin Makin | ရွှေကြည်ဆနွင်းမကင်း | dessert | Nationwide |
+| Spicy Chicken Fried Rice | ကြက်သားဆီထမင်း | dinner | Nationwide |
+| Nan Gyi Thoke | နန်းကြီးသုပ် | noodles | Nationwide |
+| Tohu Thoke | တိုဟူးသုပ် | salad | Shan State |
+| Burmese Tofu | ရှမ်းတိုဟူး | snack | Shan State |
+| Htamin Jin | ထမင်းချဉ် | salad | Shan State |
+| Vegetarian Mohinga | သက်သတ်လွတ် မုန့်ဟင်းခါး | soup | Nationwide |
+| Chicken Curry with Potatoes | ကြက်သားအာလူးဟင်း | curry | Nationwide |
+| Burmese Chicken Soup | ကြက်သားဟင်းချို | soup | Nationwide |
+| Moh Let Saung | မုန့်လက်ဆောင်း | dessert | Nationwide |
+| Banana Fritters | ငှက်ပျောကြော် | snack | Nationwide |
+| Fried Tofu with Tamarind Sauce | ကြော်တိုဟူးနှင့် ပိန္နဲရည်ဆော့စ် | snack | Shan State |
+| Samosa Salad | ဆာမိုဆာသုပ် | salad | Nationwide |
+| Bean Curry with Rice | ပဲဟင်း | curry | Nationwide |
+
+---
+
+## App Structure
+
+### App entry (`App/RecipeSaverApp.swift`)
+- `@StateObject private var settings = SettingsStore.shared`
+- Injects `managedObjectContext` + `settings` as environmentObject
+- `onOpenURL` → `SharingService.decode` → post `.didReceiveSharedRecipe`
+- `.task { seedBurmeseRecipesIfNeeded() }`
+- Declares `Notification.Name` extensions and `RecipeFeedbackAction` enum
+
+### SettingsStore (`App/SettingsStore.swift`)
+```swift
+class SettingsStore: ObservableObject {
+    static let shared = SettingsStore()
+    @Published var showBurmese: Bool  // persisted in UserDefaults key "showBurmese"
+}
+```
+
+### ContentView.swift
+- 3-tab TabView with `accentTint` color
+  - Tab 0: RecipeListView — `fork.knife`
+  - Tab 1: GroceryListView — `basket`
+  - Tab 2: SettingsView — `gearshape`
+- Listens for `.didReceiveSharedRecipe`, shows `SharedRecipePreviewView` as sheet
+
+---
+
+## UI Components (`UI/`)
+
+### Color+Extensions.swift — Royal Plum Tokens
+
+**Raw palette (only for use inside Color+Extensions.swift):**
+| Name | Hex | Usage |
+|---|---|---|
+| plumDeep | #4f055d | Primary CTAs, nav active |
+| plumMid | #7a2d8a | Placeholder tints |
+| plumLight | #c9a8d0 | Dividers, dark mode accent |
+| plumPale | #f2e8f4 | Chip backgrounds |
+| terra | #c8794a | Substitutions, region badges |
+| terraMid | #e8956a | Lighter terracotta |
+| terraPale | #fdf0e8 | Substitution panel bg |
+| ivory | #fdf8f0 | Page background (light) |
+| ivoryDim | #f0e8dc | Cards, inputs (light) |
+| ivoryDeep | #e0d4c4 | Deep card bg |
+| foliage | #0f6e56 | Quantities, "needed" accent |
+| foliagePale | #d4ede6 | Foliage tint backgrounds |
+| ink | #1e0d22 | Primary text (light) |
+| inkMid | #4a2d52 | Secondary text (light) |
+| inkMuted | #7a6080 | Tertiary text (light) |
+| darkBase | #0e0612 | Page background (dark) |
+| darkSurface | #1a0d1e | Cards (dark) |
+| darkElevated | #261630 | Inputs (dark) |
+| darkBorder | #3d2445 | Borders (dark) |
+
+**Adaptive tokens (use these in all views — never hardcode hex):**
+| Token | Light | Dark |
+|---|---|---|
+| `Color.appBackground` | ivory | darkBase |
+| `Color.cardFill` | ivoryDim | darkSurface |
+| `Color.inputFill` | ivoryDim | darkElevated |
+| `Color.primaryText` | ink | #f2e8f4 |
+| `Color.secondaryText` | inkMid | #c9a8d0 |
+| `Color.tertiaryText` | inkMuted | #7a6080 |
+| `Color.accentTint` | plumDeep | plumLight |
+| `Color.divider` | plumLight.opacity(0.35) | darkBorder |
+| `Color.boughtFill` | #f2e8f4 | #261630 |
+| `Color.scrimBg` | ivoryDim | darkSurface |
+
+`Color.adaptive(light:dark:)` helper available for one-off tokens.
+
+### Font+Extensions.swift — Type Scale
+
+All use `Font.custom(_:size:relativeTo:)` to prevent SwiftUI weight descriptor warnings.
+
+| Token | Font | Size | relativeTo |
+|---|---|---|---|
+| `Font.displayLg` | Newsreader-Italic | 36 | .largeTitle |
+| `Font.displayMd` | Newsreader-Italic | 28 | .title |
+| `Font.headlineLg` | Newsreader-SemiBold | 22 | .title2 |
+| `Font.headlineMd` | Newsreader-Italic | 18 | .title3 |
+| `Font.serif` | Newsreader-Regular | 16 | .body |
+| `Font.labelXs` | Manrope-Bold | 9 | .caption2 |
+| `Font.labelSm` | Manrope-SemiBold | 11 | .caption |
+| `Font.body` | Manrope-Regular | 14 | .body |
+| `Font.bodySm` | Manrope-Regular | 12 | .footnote |
+| `Font.bodyBold` | Manrope-SemiBold | 14 | .callout |
+| `Font.uiMd` | Manrope-SemiBold | 13 | .callout |
+| `Font.uiSm` | Manrope-Medium | 11 | .caption |
+
+Myanmar script always uses `.system()` — never Newsreader or Manrope.
+
+### AsyncRecipeImage.swift
+Off-thread image loader (`Task.detached`, userInitiated priority).
+- `assetName` → `UIImage(named: assetName)` — must be exact asset catalog name (e.g. `"StarterMohinga"`)
+- `path` → `ImageStore.load(path:)` — for custom user photos
+- Never adds any prefix to `assetName` — the JSON stores the full asset name
+
+### RecipeHeroView.swift
+Full-bleed 4:3 hero with dark scrim gradient. White text overlay (always white — on dark scrim, not adaptive). Shows category, title, Myanmar title (if `showBurmese`), cook time badge, difficulty badge.
+
+### RecipeListCard.swift
+3:2 scrim card for list view. Shows Myanmar title (list only, not grid), English title, region badge (terra capsule), cook time. cornerRadius: 16.
+
+### RecipeGridCard.swift
+1:1 square card for grid view. No Myanmar script. Shows category, English title (max 2 lines), cook time. cornerRadius: 16.
+
+### ImageCropView.swift
+Full-screen cover, dark mode enforced (`.preferredColorScheme(.dark)`).
+- `CropAspect` enum: `.hero` (4:3), `.card` (3:2), `.square` (1:1)
+- `RuleOfThirdsGrid` visual overlay
+- MagnificationGesture (1.0–4.0x) + DragGesture (clamped offset)
+- Output: 1200px wide, JPEG 0.8 quality
+- "Done" button (terra background) triggers `onConfirm(croppedImage)`
+
+### ShimmerView.swift
+Animated shimmer overlay. 45° gradient, 0.6s repeat, `.screen` blend mode. Applied via `.withShimmer()` modifier — used on "Save a Copy" button success state.
+
+### ToastNotification.swift
+Bottom-anchored card. Parameters: title, message, icon (SF symbol), accent color. Auto-dismisses after 2.4s with spring-in / easeInOut-out transition.
+
+### RecipeImageLoader.swift
+Static helpers: `image(for coverImageName:) -> Image`, `uiImage(for coverImageName:) -> UIImage?`. Fallback to SF symbol if asset not found.
+
+---
+
+## ViewModels
+
+### RecipeListViewModel
+`@Published`: `searchText`, `selectedCategory: MealCategory?`, `isGridView: Bool`
+`predicate() -> NSPredicate?` — compound predicate: title CONTAINS[cd] + category ==
+
+### RecipeDetailViewModel
+`@Published`: `currentServings: Int` (starts at recipe.baseServings)
+`scaledQuantity(for ingredient:) -> Double` — via ScalingService
+`formattedQuantity(for ingredient:) -> String`
+
+### GroceryListViewModel
+`toggleState(for item:)` — cycles needed ↔ bought
+`clearChecked(context:)` — deletes all `state == "bought"` items
+
+---
+
+## Views
+
+### RecipeListView
+- `@FetchRequest` sorted by `createdAt` descending + `RecipeListViewModel` predicate
+- Search bar, horizontal category chip scroll (All + 10 categories)
+- Toggle: 2-col `LazyVGrid` (RecipeGridCard) ↔ `LazyVStack` (RecipeListCard)
+- Toolbar: grid/list toggle, + button
+- Feedback banner (spring in, 2.4s auto-hide) via `.recipeFeedbackEvent` notification
+
+### RecipeDetailView
+- `RecipeHeroView` (full-bleed, no corner radius)
+- Cultural note banner (terra left border) if `culturalContext` not nil
+- Title + Myanmar title (if `showBurmese`)
+- Metadata pills: prep, cook, difficulty, region
+- Serving stepper (±1, min 1)
+- Ingredients: scaled quantities (foliage), substitution expand button (terra) → expandable panel
+- Myanmar ingredient names (if `showBurmese`)
+- Spices section grouped by `SpiceCategory`
+- Steps numbered list
+- Action bar: "Start Shopping" (plumDeep) + "Converter" (terra, opens `MeasurementConverterView`)
+- Toolbar (built-in): "Save a Copy" (idle/copying/success with shimmer) + Share
+- Toolbar (user recipe): Edit (pencil) + Share
+- Toast for copy/delete feedback
+
+### CreateEditRecipeView
+Multi-section form:
+1. Cover photo picker (PhotosPicker → ImageCropView fullScreenCover → coverImage state)
+2. Title (required), Description
+3. Category + Difficulty pickers (HStack)
+4. Prep / Cook / Base Servings steppers
+5. Ingredients section — name + quantity + unit + delete; substitution rows (note + context + delete); "Add substitution" per ingredient
+6. Spices section — name + quantity + unit + category picker + delete
+7. Steps section — multiline text + delete
+8. Save button (disabled if title empty); Delete button (user recipes only, red, confirmationDialog)
+
+**Image crop flow:**
+1. `PhotosPickerItem.onChange` loads `Data`
+2. Sets `rawImage` + shows `ImageCropView` as `.fullScreenCover`
+3. `onConfirm(croppedImage)` updates `coverImage` + `refreshToken`
+
+**`loadExistingRecipe()`** on appear — loads cover image using:
+- Custom path: `ImageStore.load(path: coverImagePath)`
+- Built-in asset: `UIImage(named: "Starter\(assetName)")` ← note: edit view adds "Starter" prefix when loading from asset, unlike AsyncRecipeImage which stores the full name in coverImageName
+
+**`saveRecipe()`:**
+- Reuses Recipe if edit mode, creates new if create mode
+- Deletes + recreates all ingredients/steps/spices (simplest approach)
+- Saves cropped image via `ImageStore.save()` if image changed
+
+**`deleteRecipe()`:**
+1. `ImageStore.delete(path: recipe.coverImagePath)`
+2. `context.delete(recipe)` — cascade removes ingredients/steps/spices
+3. `PersistenceController.shared.save()`
+4. Posts `.recipeFeedbackEvent` with `.deleted`
+
+### SharedRecipePreviewView
+Read-only preview from deep link payload. No cover photo. "Save to My Recipes" creates new CoreData Recipe + ingredients + steps, posts `.recipeFeedbackEvent` with `.copied`.
+
+### GroceryListView
+Two `@FetchRequest` properties (not in-memory filter):
+- `neededItems` — `state == "needed"`, sorted by addedAt
+- `boughtItems` — `state == "bought"`, sorted by addedAt
+
+`GroceryRowView`: checkbox (plumDeep when checked), name (strikethrough if bought), quantity+unit (foliage if needed, tertiaryText if bought), `boughtFill` background if bought. Swipe to delete.
+
+Toolbar: "Clear bought" (terra, removes all bought items) + "+" (AddGroceryItemView sheet).
+
+### AddGroceryItemView
+Name (required), optional quantity + unit picker. Creates `GroceryItem` with `state = "needed"`.
+
+### SettingsView
+Sections:
+- **Language**: `showBurmese` Toggle + description
+- **Reference**: "Measurement Converter" row (opens sheet)
+- **About**: App name, version, recipe count
+
+### MeasurementConverterView
+Search-filtered list of `burmeseMeasurements`. Each row: informal name (with Myanmar script if `showBurmese`) → standard value (foliage) + unit + notes.
+
+---
+
+## Copy Built-in Recipe Flow
+
+`saveBuiltInCopy()` in RecipeDetailView:
+1. New `Recipe` with `UUID()`, `createdAt = now`, `isBuiltIn = false`
+2. Title: `"\(original.title) (My Copy)"`
+3. Deep copy: all metadata, ingredients (with substitutions), steps, spices
+4. `coverImageName` copied as-is (built-in asset name)
+5. `PersistenceController.shared.save()`
+6. Shows shimmer on button + toast: "Saved!" (foliage color)
+7. Posts `.recipeFeedbackEvent` with `.copied`
+
+---
+
+## Image System
+
+### Built-in recipe images
+Asset catalog images in `Assets.xcassets`. Naming: `Starter<RecipeName>.imageset` (e.g. `StarterMohinga.imageset`).
+
+`coverImageName` in CoreData stores the full asset name (e.g. `"StarterMohinga"`).
+`AsyncRecipeImage` calls `UIImage(named: assetName)` — no prefix added.
+`CreateEditRecipeView.loadExistingRecipe()` calls `UIImage(named: "Starter\(coverImageName)")` — adds prefix for the edit form display (legacy pattern, separate from AsyncRecipeImage).
+
+### Custom user photos
+Stored as relative paths (`"covers/UUID.jpg"`) in `Documents/covers/`. `ImageStore` handles path resolution including legacy absolute paths.
+
+---
+
+## Notification Names
 
 ```swift
 extension Notification.Name {
@@ -475,98 +570,80 @@ enum RecipeFeedbackAction: String {
 
 ---
 
-## Current File Structure
+## File Structure (current)
 
 ```
 RecipeSaver/
 ├── App/
-│   ├── RecipeSaverApp.swift           ← @main, seeding (hasSeededRecipesV4), notification names
-│   ├── ContentView.swift              ← TabView (Recipes, Groceries, Settings)
-│   └── SettingsStore.swift            ← bilingual toggle ObservableObject
+│   ├── RecipeSaverApp.swift           ← @main, seeding (hasSeededRecipesV4), notifications
+│   └── SettingsStore.swift
 ├── Models/
-│   ├── Enums.swift                    ← MealCategory (10 cases), Difficulty, IngredientUnit, GroceryState (2 states), SpiceCategory
-│   ├── Recipe+Extensions.swift        ← sortedIngredients, sortedSteps, sortedSpices, spicesByCategory, mealCategory, difficultyLevel, recipeRegion
-│   ├── Ingredient+Extensions.swift    ← nameMy, sortedSubstitutions, hasSubstitutions
-│   ├── GroceryItem+Extensions.swift   ← groceryState, ingredientUnit
+│   ├── Enums.swift
+│   ├── Recipe+Extensions.swift
+│   ├── Ingredient+Extensions.swift
 │   ├── IngredientSubstitution+Extensions.swift
-│   ├── Spice+Extensions.swift         ← spiceCategory
-│   ├── Theme.swift                    ← v1 Iris Garden (kept for reference, not used in v2 views)
-│   └── Recipe+Image.swift             ← image loading helpers
+│   ├── Spice+Extensions.swift
+│   ├── GroceryItem+Extensions.swift
+│   ├── Recipe+Image.swift
+│   └── Theme.swift                    ← v1 Iris Garden (unused in v2 views, kept for reference)
 ├── Services/
-│   ├── SharingService.swift
 │   ├── ScalingService.swift
+│   ├── SharingService.swift
 │   ├── GroceryMergeService.swift
 │   ├── ImageStore.swift
-│   └── MeasurementConverter.swift     ← 10 informal Burmese measurements
+│   └── MeasurementConverter.swift
 ├── UI/
-│   ├── AsyncRecipeImage.swift         ← off-thread image loader (asset + file path)
-│   ├── Color+Extensions.swift         ← Royal Plum adaptive tokens
-│   ├── Font+Extensions.swift          ← Newsreader + Manrope type scale (relativeTo: form)
-│   ├── RecipeHeroView.swift           ← full-bleed scrim hero (4:3)
-│   ├── RecipeListCard.swift           ← list card (3:2) + grid card (1:1)
-│   ├── RecipeImageLoader.swift        ← image loading coordinator
-│   ├── ImageCropView.swift            ← in-app crop with rule-of-thirds grid
-│   ├── ShimmerView.swift              ← loading shimmer animation
-│   └── ToastNotification.swift        ← feedback toast component
+│   ├── Color+Extensions.swift
+│   ├── Font+Extensions.swift
+│   ├── AsyncRecipeImage.swift
+│   ├── RecipeHeroView.swift
+│   ├── RecipeListCard.swift
+│   ├── ImageCropView.swift
+│   ├── RecipeImageLoader.swift
+│   ├── ShimmerView.swift
+│   └── ToastNotification.swift
 ├── ViewModels/
 │   ├── RecipeListViewModel.swift
 │   ├── RecipeDetailViewModel.swift
 │   └── GroceryListViewModel.swift
 ├── Views/
 │   ├── Recipes/
-│   │   ├── RecipeListView.swift       ← full-bleed cards, category chips, feedback banners
-│   │   ├── RecipeDetailView.swift     ← hero, cultural note, spices, substitutions, bilingual, copy/edit/share
-│   │   ├── CreateEditRecipeView.swift ← full form, ImageCropView, substitutions, spices, delete
+│   │   ├── RecipeListView.swift
+│   │   ├── RecipeDetailView.swift
+│   │   ├── CreateEditRecipeView.swift
 │   │   └── SharedRecipePreviewView.swift
 │   ├── Grocery/
-│   │   ├── GroceryListView.swift      ← 2-state toggle (needed/bought)
+│   │   ├── GroceryListView.swift
 │   │   └── AddGroceryItemView.swift
 │   └── Settings/
-│       ├── SettingsView.swift         ← bilingual toggle, about section
+│       ├── SettingsView.swift
 │       └── MeasurementConverterView.swift
 ├── Resources/
-│   └── StarterRecipes.json            ← 8 Burmese recipes with substitutions, Myanmar titles
-└── RecipeSaver.xcdatamodeld/          ← two model versions (v1 + v2 with migration)
+│   └── StarterRecipes.json            ← 20 Burmese recipes
+├── ContentView.swift
+├── Persistence.swift
+├── RecipeSaver.xcdatamodeld/
+│   ├── RecipeSaver.xcdatamodel        ← v1 schema
+│   └── RecipeSaver 2.xcdatamodel      ← v2 schema (current)
+└── Assets.xcassets/                   ← 20 StarterXxx.imageset images
 ```
-
----
-
-## CoreData Migration Note
-
-v2 adds new attributes and new entities. Lightweight migration is enabled in `Persistence.swift`:
-
-```swift
-container.persistentStoreDescriptions.first?.setOption(
-    true as NSNumber,
-    forKey: NSMigratePersistentStoresAutomaticallyOption
-)
-container.persistentStoreDescriptions.first?.setOption(
-    true as NSNumber,
-    forKey: NSInferMappingModelAutomaticallyOption
-)
-```
-
-Two `.xcdatamodel` versions exist:
-- `RecipeSaver.xcdatamodel` — v1 schema
-- `RecipeSaver 2.xcdatamodel` — v2 schema (current)
 
 ---
 
 ## v2 Coding Rules (additions to CLAUDE.md §16)
 
-- **Never use `foregroundColor` in v2** — always use `foregroundStyle` with an adaptive token
-- **Never hardcode a hex color in a view** — all hex values live in `Color+Extensions.swift` only
-- **Text on scrim always uses `Color.white`** — it is on a dark gradient, never an app surface
-- **Text on app surfaces always uses `Color.primaryText` / `.secondaryText` / `.tertiaryText`** — never hardcoded
-- **Myanmar script always uses `.system()` font** — never Newsreader or Manrope
-- **`ImageCropView` always presented as `.fullScreenCover` with `.preferredColorScheme(.dark)`**
-- **Never show Myanmar script in grid view** — list cards and detail screen only
-- **Spice quantities always scale via `ScalingService`** — never hardcode base quantities in views
-- **Asset image names must match `.imageset` folder names exactly** — no prefix added in code
-- **`AsyncRecipeImage.assetName` is the full asset name** (e.g. `"StarterMohinga"`) — do not concatenate a prefix
-- **GroceryState has 2 values** (`needed` / `bought`) — ignore any 3-state references in CLAUDE.md
-- **Always call `PersistenceController.shared.save()` after copy or delete** — CoreData mutations must persist
-- **Seeding key is `"hasSeededRecipesV4"`** — do not use older keys
+- **Never use `foregroundColor`** — always `foregroundStyle` with an adaptive token
+- **Never hardcode hex in views** — all hex lives in `Color+Extensions.swift` only
+- **Text on scrim = always `Color.white`** — it's on a dark gradient, not a surface
+- **Text on surfaces = `Color.primaryText` / `.secondaryText` / `.tertiaryText`**
+- **Myanmar script = `.system()` font only** — never Newsreader or Manrope
+- **`ImageCropView` = `.fullScreenCover` + `.preferredColorScheme(.dark)` always**
+- **No Myanmar script in grid view** — list cards and detail screen only
+- **Spice quantities always via `ScalingService`** — never hardcode
+- **`AsyncRecipeImage.assetName` = full asset name** (e.g. `"StarterMohinga"`) — no prefix added
+- **GroceryState = 2 values only** — ignore any 3-state references in CLAUDE.md
+- **Seeding key = `"hasSeededRecipesV4"`** — bump version to reseed
+- **Grocery merge = same recipe only** — GroceryMergeService checks `sourceRecipeId`
 
 ---
 

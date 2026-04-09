@@ -38,6 +38,51 @@ enum GroceryState: String, CaseIterable {
     case bought = "bought"
 }
 
+// MARK: - v3
+
+enum AisleCategory: String, CaseIterable {
+    case produce      = "produce"
+    case dairy        = "dairy"
+    case meat         = "meat"
+    case seafood      = "seafood"
+    case bakery       = "bakery"
+    case frozenFoods  = "frozenFoods"
+    case pantry       = "pantry"
+    case beverages    = "beverages"
+    case household    = "household"
+    case other        = "other"
+
+    var displayName: String {
+        switch self {
+        case .produce:     return "Produce"
+        case .dairy:       return "Dairy & Eggs"
+        case .meat:        return "Meat & Poultry"
+        case .seafood:     return "Seafood"
+        case .bakery:      return "Bakery"
+        case .frozenFoods: return "Frozen Foods"
+        case .pantry:      return "Pantry & Dry Goods"
+        case .beverages:   return "Beverages"
+        case .household:   return "Household"
+        case .other:       return "Other"
+        }
+    }
+
+    var sfSymbol: String {
+        switch self {
+        case .produce:     return "leaf"
+        case .dairy:       return "drop"
+        case .meat:        return "fork.knife"
+        case .seafood:     return "fish"
+        case .bakery:      return "birthday.cake"
+        case .frozenFoods: return "snowflake"
+        case .pantry:      return "cabinet"
+        case .beverages:   return "cup.and.saucer"
+        case .household:   return "house"
+        case .other:       return "bag"
+        }
+    }
+}
+
 enum SpiceCategory: String, CaseIterable {
     case driedSpices   = "driedSpices"      // Cumin, coriander, etc.
     case freshHerbs    = "freshHerbs"       // Cilantro, mint, basil, etc.

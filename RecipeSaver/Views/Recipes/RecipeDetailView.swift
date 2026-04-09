@@ -18,17 +18,21 @@ struct RecipeDetailView: View {
     @State private var showEditSheet = false
     @State private var showGroceryConfirmation = false
     @State private var showConverter = false
+    @State private var showCookingMode = false
     @State private var expandedSubstitutionIngredientID: NSManagedObjectID? = nil
-    
-    // Enhanced copy feedback states
+
+    // Copy button shimmer state
     @State private var copyButtonState: CopyButtonState = .idle
-    @State private var showCopyToast = false
 
     let recipe: Recipe
+    /// Called when the user taps delete (user recipes only). The parent view
+    /// owns the delete flow (undo window, CoreData write) via RecipeListViewModel.
+    let onDeleteRequested: (() -> Void)?
 
-    init(recipe: Recipe, selectedTab: Binding<Int>) {
+    init(recipe: Recipe, selectedTab: Binding<Int>, onDeleteRequested: (() -> Void)? = nil) {
         self.recipe = recipe
         self._selectedTab = selectedTab
+        self.onDeleteRequested = onDeleteRequested
         _viewModel = StateObject(wrappedValue: RecipeDetailViewModel(recipe: recipe))
     }
 
@@ -39,9 +43,24 @@ struct RecipeDetailView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
 
-                    // MARK: - Full-bleed hero
-                    RecipeHeroView(recipe: recipe)
-                        .environmentObject(settings)
+
+                    // MARK: - Parallax hero
+                    let heroHeight = UIScreen.main.bounds.width * (3.0 / 4.0)
+                    GeometryReader { geo in
+                        let globalOffset = geo.frame(in: .global).minY
+                        // Scrolling up (offset < 0): shift image up at 0.5× speed
+                        // Pulling down (offset > 0): stretch image downward (rubber-band)
+                        let parallaxOffset = globalOffset > 0 ? -globalOffset : globalOffset * 0.5
+
+                        RecipeHeroView(recipe: recipe)
+                            .environmentObject(settings)
+                            .offset(y: parallaxOffset)
+                            .frame(
+                                height: heroHeight + max(0, -parallaxOffset * 2),
+                                alignment: .top
+                            )
+                    }
+                    .frame(height: heroHeight)
 
                     VStack(alignment: .leading, spacing: 20) {
 
@@ -179,6 +198,30 @@ struct RecipeDetailView: View {
                             }
                         }
 
+                        // MARK: - Nutrition estimates
+                        if let nutrition = NutritionService.estimate(for: recipe, servings: viewModel.currentServings) {
+                            DisclosureGroup("Nutrition Estimate per Serving") {
+                                VStack(alignment: .leading, spacing: 8) {
+                                    HStack(spacing: 0) {
+                                        NutrientPill(label: "Calories", value: "~\(Int(nutrition.calories))", unit: "kcal")
+                                        NutrientPill(label: "Protein",  value: "~\(Int(nutrition.proteinG))", unit: "g")
+                                        NutrientPill(label: "Carbs",    value: "~\(Int(nutrition.carbsG))",   unit: "g")
+                                        NutrientPill(label: "Fat",      value: "~\(Int(nutrition.fatG))",     unit: "g")
+                                    }
+                                    .padding(.top, 8)
+                                    Text("Estimates based on \(nutrition.matchedCount) of \(nutrition.totalCount) ingredients. Values are approximate.")
+                                        .font(.bodySm)
+                                        .foregroundStyle(Color.tertiaryText)
+                                }
+                            }
+                            .tint(Color.accentTint)
+                            .font(.bodyBold)
+                            .foregroundStyle(Color.primaryText)
+                            .padding(14)
+                            .background(Color.cardFill)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                        }
+
                         // MARK: - Action buttons
                         HStack(spacing: 12) {
                             Button {
@@ -222,29 +265,14 @@ struct RecipeDetailView: View {
                 }
                 .padding(.bottom, 32)
             }
+            .ignoresSafeArea(.container, edges: .top)
 
-            // MARK: - Copy feedback toast
-            if showCopyToast {
-                VStack {
-                    Spacer()
-                    
-                    ToastNotification(
-                        title: "Saved!",
-                        message: "Recipe copied to your collection",
-                        icon: "checkmark.circle.fill",
-                        accent: Color.foliage
-                    )
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
-                    .padding(20)
-                }
-            }
         }
-        .onChange(of: showCopyToast) { oldValue, newValue in
-            if newValue {
-                // Auto-hide toast after 2.4 seconds
+        .onChange(of: copyButtonState) { _, newValue in
+            if newValue == .success {
+                // Reset shimmer after 2.4s
                 DispatchQueue.main.asyncAfter(deadline: .now() + 2.4) {
                     withAnimation(.easeIn(duration: 0.3)) {
-                        showCopyToast = false
                         copyButtonState = .idle
                     }
                 }
@@ -253,8 +281,18 @@ struct RecipeDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
+                if !recipe.sortedSteps.isEmpty {
+                    Button {
+                        showCookingMode = true
+                    } label: {
+                        Image(systemName: "flame")
+                            .foregroundStyle(Color.terra)
+                    }
+                }
+            }
+            ToolbarItem(placement: .navigationBarTrailing) {
                 if recipe.isBuiltIn {
-                    // Enhanced copy button with state-based icon
+                    // Copy button with shimmer state
                     Button {
                         saveBuiltInCopyWithFeedback()
                     } label: {
@@ -274,7 +312,19 @@ struct RecipeDetailView: View {
                     .foregroundStyle(Color.accentTint)
                     .buttonStyle(.plain)
                     .disabled(copyButtonState == .copying)
-                } else {
+                } else if onDeleteRequested != nil {
+                    // v3: delete button — delegates back to RecipeListView which owns the undo flow
+                    Button {
+                        dismiss()
+                        onDeleteRequested?()
+                    } label: {
+                        Image(systemName: "trash")
+                            .foregroundStyle(Color.accentTint)
+                    }
+                }
+            }
+            ToolbarItem(placement: .navigationBarTrailing) {
+                if !recipe.isBuiltIn {
                     Button {
                         showEditSheet = true
                     } label: {
@@ -301,16 +351,8 @@ struct RecipeDetailView: View {
             MeasurementConverterView()
                 .environmentObject(settings)
         }
-        .onReceive(NotificationCenter.default.publisher(for: .recipeFeedbackEvent)) { notification in
-            guard
-                let actionRaw = notification.userInfo?["action"] as? String,
-                let action = RecipeFeedbackAction(rawValue: actionRaw),
-                action == .deleted,
-                let deletedObjectID = notification.userInfo?["recipeObjectID"] as? NSManagedObjectID,
-                deletedObjectID == recipe.objectID
-            else { return }
-
-            dismiss()
+        .fullScreenCover(isPresented: $showCookingMode) {
+            CookingModeView(recipe: recipe)
         }
     }
 
@@ -461,18 +503,34 @@ struct RecipeDetailView: View {
         .clipShape(RoundedRectangle(cornerRadius: 10))
     }
 
-    // MARK: - Save copy with enhanced feedback
+    // MARK: - v3 copy with banner "View" button
 
-    private func saveBuiltInCopyWithFeedback() {
-        saveBuiltInCopy()
+    @discardableResult
+    private func saveBuiltInCopyWithFeedback() -> Recipe {
         UINotificationFeedbackGenerator().notificationOccurred(.success)
         withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
             copyButtonState = .success
-            showCopyToast = true
         }
+        let copy = saveBuiltInCopy()
+
+        BannerManager.shared.show(FloatingBanner(
+            id: UUID(),
+            title: "Saved to My Recipes",
+            subtitle: "\"\(copy.title ?? "Recipe")\"",
+            icon: "checkmark.circle.fill",
+            accentColor: Color.foliage,
+            actionLabel: "View",
+            duration: 2.4,
+            onAction: {
+                NotificationCenter.default.post(name: .navigateToRecipe, object: copy)
+            },
+            onDismiss: nil
+        ))
+        return copy
     }
 
-    private func saveBuiltInCopy() {
+    @discardableResult
+    private func saveBuiltInCopy() -> Recipe {
         let copy = Recipe(context: viewContext)
         copy.id          = UUID()
         copy.title       = (recipe.title ?? "") + " (My Copy)"
@@ -532,14 +590,29 @@ struct RecipeDetailView: View {
         }
 
         PersistenceController.shared.save()
-
-        NotificationCenter.default.post(
-            name: .recipeFeedbackEvent,
-            object: nil,
-            userInfo: [
-                "action": RecipeFeedbackAction.copied.rawValue,
-                "title": copy.title ?? "Recipe"
-            ]
-        )
+        return copy
     }
 }
+// MARK: - NutrientPill
+
+struct NutrientPill: View {
+    let label: String
+    let value: String
+    let unit: String
+
+    var body: some View {
+        VStack(spacing: 2) {
+            Text(value)
+                .font(.headlineMd)
+                .foregroundStyle(Color.foliage)
+            Text(unit)
+                .font(.labelXs)
+                .foregroundStyle(Color.tertiaryText)
+            Text(label)
+                .font(.labelSm)
+                .foregroundStyle(Color.secondaryText)
+        }
+        .frame(maxWidth: .infinity)
+    }
+}
+

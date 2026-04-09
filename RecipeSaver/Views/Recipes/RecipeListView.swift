@@ -6,7 +6,7 @@ struct RecipeListView: View {
     @EnvironmentObject var settings: SettingsStore
     @StateObject private var viewModel = RecipeListViewModel()
     @Binding var selectedTab: Int
-    @State private var feedbackBanner: RecipeFeedbackBannerData?
+    @State private var navigatingToRecipe: Recipe? = nil
 
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \Recipe.createdAt, ascending: false)],
@@ -20,7 +20,9 @@ struct RecipeListView: View {
                 (recipe.title ?? "").localizedCaseInsensitiveContains(viewModel.searchText)
             let matchesCategory = viewModel.selectedCategory == nil ||
                 recipe.mealCategory == viewModel.selectedCategory
-            return matchesSearch && matchesCategory
+            // v3: hide recipe during the 3-second undo window
+            let notPendingDelete = recipe.id != viewModel.pendingDeleteID
+            return matchesSearch && matchesCategory && notPendingDelete
         }
     }
 
@@ -86,20 +88,38 @@ struct RecipeListView: View {
                         if viewModel.isGridView {
                             LazyVGrid(columns: gridColumns, spacing: 12) {
                                 ForEach(filteredRecipes, id: \.objectID) { recipe in
-                                    NavigationLink(destination: RecipeDetailView(recipe: recipe, selectedTab: $selectedTab)) {
+                                    NavigationLink(destination: RecipeDetailView(recipe: recipe, selectedTab: $selectedTab, onDeleteRequested: { deleteRecipe(recipe) })) {
                                         RecipeGridCard(recipe: recipe)
                                     }
                                     .buttonStyle(.plain)
+                                    .contextMenu {
+                                        if !recipe.isBuiltIn {
+                                            Button(role: .destructive) {
+                                                deleteRecipe(recipe)
+                                            } label: {
+                                                Label("Delete", systemImage: "trash")
+                                            }
+                                        }
+                                    }
                                 }
                             }
                             .padding(.horizontal, 20)
                         } else {
                             LazyVStack(spacing: 14) {
                                 ForEach(filteredRecipes, id: \.objectID) { recipe in
-                                    NavigationLink(destination: RecipeDetailView(recipe: recipe, selectedTab: $selectedTab)) {
+                                    NavigationLink(destination: RecipeDetailView(recipe: recipe, selectedTab: $selectedTab, onDeleteRequested: { deleteRecipe(recipe) })) {
                                         RecipeListCard(recipe: recipe)
                                     }
                                     .buttonStyle(.plain)
+                                    .contextMenu {
+                                        if !recipe.isBuiltIn {
+                                            Button(role: .destructive) {
+                                                deleteRecipe(recipe)
+                                            } label: {
+                                                Label("Delete", systemImage: "trash")
+                                            }
+                                        }
+                                    }
                                 }
                             }
                             .padding(.horizontal, 20)
@@ -107,16 +127,6 @@ struct RecipeListView: View {
 
                         Spacer(minLength: 40)
                     }
-                }
-
-                if let feedbackBanner {
-                    VStack {
-                        RecipeFeedbackBanner(data: feedbackBanner)
-                            .padding(.horizontal, 20)
-                            .padding(.top, 12)
-                        Spacer()
-                    }
-                    .transition(.move(edge: .top).combined(with: .opacity))
                 }
             }
             .toolbar {
@@ -136,17 +146,19 @@ struct RecipeListView: View {
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
-            .onReceive(NotificationCenter.default.publisher(for: .recipeFeedbackEvent)) { notification in
-                guard
-                    let actionRaw = notification.userInfo?["action"] as? String,
-                    let action = RecipeFeedbackAction(rawValue: actionRaw),
-                    let title = notification.userInfo?["title"] as? String
-                else { return }
-
-                showFeedbackBanner(for: action, title: title)
+            // v3: navigate to a newly copied recipe from the banner "View" button
+            .navigationDestination(item: $navigatingToRecipe) { recipe in
+                RecipeDetailView(recipe: recipe, selectedTab: $selectedTab, onDeleteRequested: { deleteRecipe(recipe) })
+            }
+            .onReceive(NotificationCenter.default.publisher(for: .navigateToRecipe)) { notification in
+                if let recipe = notification.object as? Recipe {
+                    navigatingToRecipe = recipe
+                }
             }
         }
     }
+
+    // MARK: - Helpers
 
     @ViewBuilder
     private func categoryChip(_ title: String, isActive: Bool, action: @escaping () -> Void) -> some View {
@@ -161,68 +173,13 @@ struct RecipeListView: View {
         }
     }
 
-    private func showFeedbackBanner(for action: RecipeFeedbackAction, title: String) {
-        let data = RecipeFeedbackBannerData(
-            title: action == .copied ? "Saved to My Recipes" : "Recipe Deleted",
-            message: action == .copied ? "\"\(title)\" is ready to edit." : "\"\(title)\" was removed from your collection.",
-            icon: action == .copied ? "square.and.arrow.down.fill" : "trash.fill",
-            accent: action == .copied ? .foliage : .terra
-        )
-
-        withAnimation(.spring(response: 0.35, dampingFraction: 0.9)) {
-            feedbackBanner = data
-        }
-
-        Task {
-            try? await Task.sleep(for: .seconds(2.4))
-            await MainActor.run {
-                withAnimation(.easeInOut(duration: 0.2)) {
-                    if feedbackBanner?.title == data.title && feedbackBanner?.message == data.message {
-                        feedbackBanner = nil
-                    }
-                }
-            }
+    private func deleteRecipe(_ recipe: Recipe) {
+        viewModel.initiateDelete(recipe: recipe) {
+            ImageStore.delete(path: recipe.coverImagePath)
+            viewContext.delete(recipe)
+            PersistenceController.shared.save()
         }
     }
 }
 
-private struct RecipeFeedbackBannerData: Equatable {
-    let title: String
-    let message: String
-    let icon: String
-    let accent: Color
-}
 
-private struct RecipeFeedbackBanner: View {
-    let data: RecipeFeedbackBannerData
-
-    var body: some View {
-        HStack(alignment: .top, spacing: 12) {
-            Image(systemName: data.icon)
-                .font(.system(size: 14, weight: .semibold))
-                .foregroundStyle(Color.white)
-                .frame(width: 32, height: 32)
-                .background(data.accent)
-                .clipShape(Circle())
-
-            VStack(alignment: .leading, spacing: 3) {
-                Text(data.title)
-                    .font(.bodyBold)
-                    .foregroundStyle(Color.primaryText)
-                Text(data.message)
-                    .font(.bodySm)
-                    .foregroundStyle(Color.secondaryText)
-            }
-
-            Spacer(minLength: 0)
-        }
-        .padding(14)
-        .background(.ultraThinMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-        .overlay {
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(Color.divider, lineWidth: 1)
-        }
-        .shadow(color: Color.black.opacity(0.12), radius: 12, x: 0, y: 6)
-    }
-}
