@@ -174,8 +174,12 @@ struct RecipeListView: View {
     }
 
     private func deleteRecipe(_ recipe: Recipe) {
+        let recipeId = recipe.id
         viewModel.initiateDelete(recipe: recipe) {
             ImageStore.delete(path: recipe.coverImagePath)
+            if let id = recipeId {
+                MealPlanService.removeAllEntries(forRecipeId: id, context: viewContext)
+            }
             viewContext.delete(recipe)
             PersistenceController.shared.save()
         }

@@ -1141,4 +1141,30 @@ Objective: support larger built-in recipe libraries without full destructive res
 
 ---
 
+## TestFlight Readiness (2026-04-11)
+
+### Completed
+
+| Item | How |
+|---|---|
+| `recipesaver://` URL scheme | Registered via Xcode Target → Info → URL Types. Stored in `RecipeSaver/Info.plist` as `CFBundleURLTypes`. |
+| Privacy usage strings | `NSPhotoLibraryUsageDescription` + `NSCameraUsageDescription` added to build settings. |
+| iOS deployment target | Verified at iOS 17.0. |
+
+### Remaining before first TestFlight upload
+
+| Item | Notes |
+|---|---|
+| App icon — 1024×1024 PNG | User is working on this. Drop into `Assets.xcassets/AppIcon.appiconset`. No alpha channel, no rounded corners. |
+| App Store Connect record | Create new app at appstoreconnect.apple.com — bundle ID must match Xcode signing. |
+| Signing — Distribution cert + provisioning | Xcode → Product → Archive will prompt. Use Automatic Signing → "Any iOS Device". |
+| Archive + upload | Product → Archive → Distribute App → TestFlight & App Store → Upload. |
+| TestFlight build processing | Apple processes dSYMs (~10–30 min). After processing, add internal testers. |
+
+### SF Symbol icon modernisation (planned)
+
+Goal: replace any remaining text-only buttons and placeholders with SF symbols where contextually appropriate. Audit each view for buttons with no leading icon and add the appropriate `systemImage:` label variant. No new patterns needed — design system already uses `Label("Title", systemImage: "symbol")` throughout.
+
+---
+
 *End of CLAUDE_v3.md — Burmese Kitchen v3*

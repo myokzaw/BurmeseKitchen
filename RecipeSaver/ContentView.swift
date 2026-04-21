@@ -6,6 +6,8 @@ struct ContentView: View {
     @EnvironmentObject var settings: SettingsStore
     @StateObject private var bannerManager = BannerManager.shared
 
+    @Environment(\.managedObjectContext) private var viewContext
+
     var body: some View {
         ZStack(alignment: .bottom) {
             TabView(selection: $selectedTab) {
@@ -21,11 +23,17 @@ struct ContentView: View {
                     }
                     .tag(1)
 
+                MealPlanView(selectedTab: $selectedTab, context: viewContext)
+                    .tabItem {
+                        Label("Meal Plan", systemImage: "calendar")
+                    }
+                    .tag(2)
+
                 SettingsView()
                     .tabItem {
                         Label("Settings", systemImage: "gearshape")
                     }
-                    .tag(2)
+                    .tag(3)
             }
             .tint(Color.accentTint)
             .onReceive(NotificationCenter.default.publisher(for: .didReceiveSharedRecipe)) { notification in

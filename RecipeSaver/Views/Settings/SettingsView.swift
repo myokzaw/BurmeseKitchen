@@ -50,6 +50,32 @@ struct SettingsView: View {
                         .padding(.horizontal, 20)
                         .padding(.top, 8)
 
+                    // MARK: - Meal Plan section
+                    sectionHeader("Meal Plan")
+
+                    settingsCard {
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("Planning window")
+                                        .font(.bodyBold)
+                                        .foregroundStyle(Color.primaryText)
+                                    Text("Weeks visible before and after today")
+                                        .font(.bodySm)
+                                        .foregroundStyle(Color.secondaryText)
+                                }
+                                Spacer()
+                            }
+                            Picker("Planning window", selection: $settings.mealPlanWeekWindow) {
+                                ForEach(1...8, id: \.self) { weeks in
+                                    Text("\(weeks)").tag(weeks)
+                                }
+                            }
+                            .pickerStyle(.segmented)
+                        }
+                    }
+                    .padding(.horizontal, 20)
+
                     // MARK: - Converter section
                     sectionHeader("Reference")
 

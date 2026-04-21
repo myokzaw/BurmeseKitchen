@@ -83,6 +83,44 @@ enum AisleCategory: String, CaseIterable {
     }
 }
 
+// MARK: - v4
+
+enum MealSlot: String, CaseIterable {
+    case breakfast = "breakfast"
+    case lunch     = "lunch"
+    case dinner    = "dinner"
+    case snack     = "snack"
+
+    var displayName: String { rawValue.capitalized }
+
+    var myanmarName: String {
+        switch self {
+        case .breakfast: return "မနက်စာ"
+        case .lunch:     return "နေ့လည်စာ"
+        case .dinner:    return "ညစာ"
+        case .snack:     return "သရေစာ"
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .breakfast: return "sunrise"
+        case .lunch:     return "sun.max"
+        case .dinner:    return "moon.stars"
+        case .snack:     return "leaf"
+        }
+    }
+}
+
+enum GroceryGenMode {
+    case merge, replace
+}
+
+enum ReplaceScope {
+    case recipeItemsOnly  // deletes GroceryItems where sourceRecipeId != nil
+    case everything       // NSBatchDeleteRequest full wipe
+}
+
 enum SpiceCategory: String, CaseIterable {
     case driedSpices   = "driedSpices"      // Cumin, coriander, etc.
     case freshHerbs    = "freshHerbs"       // Cilantro, mint, basil, etc.
