@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		4665022A2F974A5F001B0584 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 466502292F974A5F001B0584 /* PrivacyInfo.xcprivacy */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		46DC72002F7DB92F00CE710A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -24,6 +28,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		466502292F974A5F001B0584 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		46DC71ED2F7DB92E00CE710A /* RecipeSaver.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RecipeSaver.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		46DC71FF2F7DB92F00CE710A /* RecipeSaverTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RecipeSaverTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		46DC72092F7DB92F00CE710A /* RecipeSaverUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RecipeSaverUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -94,6 +99,7 @@
 				46DC720C2F7DB92F00CE710A /* RecipeSaverUITests */,
 				46DC71EE2F7DB92E00CE710A /* Products */,
 				46DC721C2F7DBCFF00CE710A /* CLAUDE.md */,
+				466502292F974A5F001B0584 /* PrivacyInfo.xcprivacy */,
 			);
 			sourceTree = "<group>";
 		};
@@ -227,6 +233,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4665022A2F974A5F001B0584 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

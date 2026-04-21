@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!--
+        Burmese Kitchen — Privacy Manifest
+        This app is fully offline. No data is collected, transmitted, or tracked.
+    -->
+
+    <!-- App does not participate in tracking -->
+    <key>NSPrivacyTracking</key>
+    <false/>
+
+    <!-- No tracking domains contacted -->
+    <key>NSPrivacyTrackingDomains</key>
+    <array/>
+
+    <!-- No data collected from users -->
+    <key>NSPrivacyCollectedDataTypes</key>
+    <array/>
+
+    <!-- Required Reason APIs used by this app -->
+    <key>NSPrivacyAccessedAPITypes</key>
+    <array>
+        <!--
+            UserDefaults — used to persist app preferences:
+            - showBurmese (language toggle)
+            - mealPlanWeekWindow (planning window size)
+            - hasSeededRecipesV4 (one-time seeding gate)
+            - starterRecipesHashV4 / starterContentVersionV1 (content update tracking)
+            Reason CA92.1: Access info stored using the same app, for app functionality only.
+        -->
+        <dict>
+            <key>NSPrivacyAccessedAPIType</key>
+            <string>NSPrivacyAccessedAPICategoryUserDefaults</string>
+            <key>NSPrivacyAccessedAPITypeReasons</key>
+            <array>
+                <string>CA92.1</string>
+            </array>
+        </dict>
+    </array>
+</dict>
+</plist>
