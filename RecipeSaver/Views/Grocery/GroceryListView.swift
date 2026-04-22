@@ -203,10 +203,7 @@ struct GroceryRowView: View {
                     .strikethrough(isBought, color: Color.tertiaryText)
 
                 if let unit = item.unit, !unit.isEmpty, item.quantity > 0 {
-                    let qtyStr = item.quantity == floor(item.quantity)
-                        ? String(format: "%.0f", item.quantity)
-                        : String(format: "%.2g", item.quantity)
-                    Text("\(qtyStr) \(unit)")
+                    Text("\(ScalingService.formatQuantity(item.quantity)) \(unit)")
                         .font(.bodySm)
                         .foregroundStyle(isBought ? Color.tertiaryText : Color.foliage)
                 }

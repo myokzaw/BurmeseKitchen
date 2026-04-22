@@ -102,22 +102,27 @@ struct MealSlotCard: View {
                     .foregroundStyle(Color.primaryText)
                     .lineLimit(1)
 
-                HStack(spacing: 6) {
-                    let count = entry.servingsCount
-                    Text(count == 1 ? "1 serving" : "\(count) servings")
-                        .font(.bodySm)
-                        .foregroundStyle(Color.secondaryText)
-
-                    Stepper("", value: Binding(
-                        get: { entry.servingsCount },
-                        set: { viewModel.updateServings($0, for: entry) }
-                    ), in: 1...20)
-                    .labelsHidden()
-                    .scaleEffect(0.8, anchor: .leading)
-                }
+                // ServingsControl uses local @State to avoid Stepper glitches
+                // that occur when the CoreData save triggers a @FetchRequest
+                // re-render mid-gesture with a Binding(get:set:) pattern.
+                ServingsControl(entry: entry, viewModel: viewModel)
+                    .id(entry.objectID)
             }
 
             Spacer()
+
+            // Delete button — tap area is independent of the card's onTapGesture
+            Button {
+                viewModel.removeEntry(entry)
+            } label: {
+                Image(systemName: "trash")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundStyle(Color.terra)
+                    .frame(width: 36, height: 36)
+                    .background(Color.terra.opacity(0.08))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+            .buttonStyle(.plain)
         }
         .padding(14)
         .background(Color.cardFill)
@@ -138,6 +143,39 @@ struct MealSlotCard: View {
             RecipePickerView(currentRecipeId: entry.recipeId) { recipe in
                 viewModel.setRecipe(recipe, date: date, slot: slot)
             }
+        }
+    }
+}
+
+// MARK: - ServingsControl
+// Separate view so @State survives @FetchRequest re-renders in the parent.
+// Binds Stepper to local @State — immediately responsive, no CoreData feedback loop.
+// .id(entry.objectID) on call site ensures fresh state when the entry is replaced.
+
+private struct ServingsControl: View {
+    let entry: MealPlanEntry
+    let viewModel: MealPlanViewModel
+
+    @State private var count: Int
+
+    init(entry: MealPlanEntry, viewModel: MealPlanViewModel) {
+        self.entry = entry
+        self.viewModel = viewModel
+        self._count = State(initialValue: entry.servingsCount)
+    }
+
+    var body: some View {
+        HStack(spacing: 6) {
+            Text(count == 1 ? "1 serving" : "\(count) servings")
+                .font(.bodySm)
+                .foregroundStyle(Color.secondaryText)
+
+            Stepper("", value: $count, in: 1...20)
+                .labelsHidden()
+                .scaleEffect(0.8, anchor: .leading)
+        }
+        .onChange(of: count) { newCount in
+            viewModel.updateServings(newCount, for: entry)
         }
     }
 }

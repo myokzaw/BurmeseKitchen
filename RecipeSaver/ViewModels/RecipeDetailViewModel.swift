@@ -20,10 +20,6 @@ class RecipeDetailViewModel: ObservableObject {
     }
 
     func formattedQuantity(for ingredient: Ingredient) -> String {
-        let scaled = scaledQuantity(for: ingredient)
-        if scaled == floor(scaled) {
-            return String(format: "%.0f", scaled)
-        }
-        return String(format: "%.2g", scaled)
+        ScalingService.formatQuantity(scaledQuantity(for: ingredient))
     }
 }

@@ -29,7 +29,7 @@
 
 /* Begin PBXFileReference section */
 		466502292F974A5F001B0584 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		46DC71ED2F7DB92E00CE710A /* RecipeSaver.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RecipeSaver.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		46DC71ED2F7DB92E00CE710A /* Myanmar Kitchen.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Myanmar Kitchen.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		46DC71FF2F7DB92F00CE710A /* RecipeSaverTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RecipeSaverTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		46DC72092F7DB92F00CE710A /* RecipeSaverUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RecipeSaverUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		46DC721C2F7DBCFF00CE710A /* CLAUDE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CLAUDE.md; sourceTree = "<group>"; };
@@ -106,7 +106,7 @@
 		46DC71EE2F7DB92E00CE710A /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				46DC71ED2F7DB92E00CE710A /* RecipeSaver.app */,
+				46DC71ED2F7DB92E00CE710A /* Myanmar Kitchen.app */,
 				46DC71FF2F7DB92F00CE710A /* RecipeSaverTests.xctest */,
 				46DC72092F7DB92F00CE710A /* RecipeSaverUITests.xctest */,
 			);
@@ -135,7 +135,7 @@
 			packageProductDependencies = (
 			);
 			productName = RecipeSaver;
-			productReference = 46DC71ED2F7DB92E00CE710A /* RecipeSaver.app */;
+			productReference = 46DC71ED2F7DB92E00CE710A /* Myanmar Kitchen.app */;
 			productType = "com.apple.product-type.application";
 		};
 		46DC71FE2F7DB92F00CE710A /* RecipeSaverTests */ = {
@@ -440,7 +440,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 26.3;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = myozaw.RecipeSaver;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "Myanmar Kitchen";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -488,7 +488,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 26.3;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = myozaw.RecipeSaver;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "Myanmar Kitchen";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;

@@ -27,6 +27,8 @@ struct MealPlanView: View {
                 Divider().background(Color.divider)
 
                 // Week page swiper
+                // .id(viewModel.weekWindow) forces a clean rebuild when the window size changes,
+                // preventing stale view identity and Stepper glitches during the ForEach range diff.
                 TabView(selection: $viewModel.weekOffset) {
                     ForEach(-viewModel.weekWindow...viewModel.weekWindow, id: \.self) { offset in
                         WeekPageView(
@@ -41,6 +43,7 @@ struct MealPlanView: View {
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
                 .animation(.easeInOut(duration: 0.25), value: viewModel.weekOffset)
+                .id(viewModel.weekWindow)
             }
             .background(Color.appBackground.ignoresSafeArea())
             .navigationBarTitleDisplayMode(.inline)
